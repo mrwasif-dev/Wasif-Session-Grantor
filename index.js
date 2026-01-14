@@ -48,24 +48,29 @@ async function startSocket() {
 
       console.log("✅ Session Text Generated");
 
-      // 📩 SEND SESSION TO SAME NUMBER
       try {
         const myNumber =
           sock.user.id.split(":")[0] + "@s.whatsapp.net";
 
+        // 📩 MESSAGE 1
         await sock.sendMessage(myNumber, {
-          text:
-`✅ DEVICE LINKED SUCCESSFULLY
-
-🔐 SESSION ID (TEXT):
-${SESSION_TEXT}
-
-⚠️ Do not share this with anyone`
+          text: "☺️Thank To Choice  Wasif MD☺️"
         });
 
-        console.log("📨 Session sent on WhatsApp");
+        // 📩 MESSAGE 2 (ONLY SESSION)
+        await sock.sendMessage(myNumber, {
+          text: SESSION_TEXT
+        });
+
+        // 📩 MESSAGE 3 (WARNING)
+        await sock.sendMessage(myNumber, {
+          text: "⚠️ Do not share this SESSION ID with anyone"
+        });
+
+        console.log("📨 All messages sent successfully");
+
       } catch (e) {
-        console.log("❌ Failed to send session on WhatsApp");
+        console.log("❌ Failed to send WhatsApp messages", e);
       }
     }
 
