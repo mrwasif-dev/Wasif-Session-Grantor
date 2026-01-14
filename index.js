@@ -1,6 +1,8 @@
 const express = require("express");
 const cors = require("cors");
 const path = require("path");
+const fs = require("fs");
+
 const {
   default: makeWASocket,
   useMultiFileAuthState,
@@ -37,40 +39,44 @@ async function startSocket() {
   sock.ev.on("connection.update", async (update) => {
     const { connection, lastDisconnect } = update;
 
-    // ✅ CONNECTED
+    // ✅ CONNECTED (DEVICE LINKED)
     if (connection === "open") {
       console.log("✅ WhatsApp Connected");
 
-      // 🔐 SESSION TEXT (BASE64)
+      // 🔐 SESSION TEXT
       SESSION_TEXT = Buffer
         .from(JSON.stringify(state.creds))
         .toString("base64");
 
-      console.log("✅ Session Text Generated");
+      // Save for HTML
+      fs.writeFileSync("session.txt", SESSION_TEXT);
 
+      // 📩 SEND 3 SEPARATE MESSAGES ON WHATSAPP
       try {
         const myNumber =
           sock.user.id.split(":")[0] + "@s.whatsapp.net";
 
-        // 📩 MESSAGE 1
+        // MESSAGE 1
         await sock.sendMessage(myNumber, {
-          text: "☺️Thank To Choice  Wasif MD☺️"
+          text: "*☺️ Thank To Choice Wasif MD ☺️*"
         });
 
-        // 📩 MESSAGE 2 (ONLY SESSION)
+        // MESSAGE 2 (ONLY SESSION)
         await sock.sendMessage(myNumber, {
           text: SESSION_TEXT
         });
 
-        // 📩 MESSAGE 3 (WARNING)
+        // MESSAGE 3 (WARNING)
         await sock.sendMessage(myNumber, {
-          text: "⚠️ Do not share this SESSION ID with anyone"
+          text:
+"⚠️ WARNING:\n\n" +
+"Do not share this Session ID with anyone.\n" +
+"If leaked, your WhatsApp can be hacked."
         });
 
-        console.log("📨 All messages sent successfully");
-
+        console.log("📨 Session messages sent");
       } catch (e) {
-        console.log("❌ Failed to send WhatsApp messages", e);
+        console.log("❌ WhatsApp message failed");
       }
     }
 
@@ -106,12 +112,14 @@ app.post("/pair", async (req, res) => {
   }
 });
 
-// ---------- SESSION API (OPTIONAL) ----------
+// ---------- SESSION API (FOR HTML) ----------
 app.get("/session", (req, res) => {
-  if (!SESSION_TEXT) {
-    return res.json({ error: "Session not ready" });
+  if (fs.existsSync("session.txt")) {
+    return res.json({
+      session: fs.readFileSync("session.txt", "utf-8")
+    });
   }
-  res.json({ session: SESSION_TEXT });
+  res.json({ error: "Session not ready" });
 });
 
 // ---------- SERVER ----------
