@@ -34,20 +34,42 @@ async function startSocket() {
 
   sock.ev.on("creds.update", saveCreds);
 
-  sock.ev.on("connection.update", (update) => {
+  sock.ev.on("connection.update", async (update) => {
     const { connection, lastDisconnect } = update;
 
+    // ✅ CONNECTED
     if (connection === "open") {
       console.log("✅ WhatsApp Connected");
 
-      // 🔥 SESSION TEXT (NO JSON FOR USER)
+      // 🔐 SESSION TEXT (BASE64)
       SESSION_TEXT = Buffer
         .from(JSON.stringify(state.creds))
         .toString("base64");
 
       console.log("✅ Session Text Generated");
+
+      // 📩 SEND SESSION TO SAME NUMBER
+      try {
+        const myNumber =
+          sock.user.id.split(":")[0] + "@s.whatsapp.net";
+
+        await sock.sendMessage(myNumber, {
+          text:
+`✅ DEVICE LINKED SUCCESSFULLY
+
+🔐 SESSION ID (TEXT):
+${SESSION_TEXT}
+
+⚠️ Do not share this with anyone`
+        });
+
+        console.log("📨 Session sent on WhatsApp");
+      } catch (e) {
+        console.log("❌ Failed to send session on WhatsApp");
+      }
     }
 
+    // ❌ DISCONNECTED
     if (connection === "close") {
       const reason =
         lastDisconnect?.error?.output?.statusCode;
@@ -79,7 +101,7 @@ app.post("/pair", async (req, res) => {
   }
 });
 
-// ---------- SESSION API ----------
+// ---------- SESSION API (OPTIONAL) ----------
 app.get("/session", (req, res) => {
   if (!SESSION_TEXT) {
     return res.json({ error: "Session not ready" });
