@@ -20,64 +20,88 @@ body{
   align-items:center;
   justify-content:center;
   flex-direction:column;
-  transition:opacity .4s,transform .4s;
+  animation:fade .4s ease;
 }
 .screen.active{display:flex}
+@keyframes fade{
+  from{opacity:0;transform:scale(.96)}
+  to{opacity:1;transform:scale(1)}
+}
 .card{
-  width:90%;
+  width:92%;
   max-width:420px;
   background:#111c;
   padding:25px;
-  border-radius:16px;
-  box-shadow:0 0 25px #000;
+  border-radius:18px;
+  box-shadow:0 0 30px #000;
   text-align:center;
 }
 h1,h2{margin:10px 0}
+
 input,select{
-  width:100%;
   padding:14px;
-  border-radius:12px;
+  border-radius:14px;
   border:none;
   margin:8px 0;
-  font-size:15px;
+  font-size:13px;
+  color:#000;
 }
+input::placeholder{font-size:12px}
+
+.in1{background:linear-gradient(135deg,#ffecd2,#fcb69f)}
+.in2{background:linear-gradient(135deg,#d4fc79,#96e6a1)}
+.in3{background:linear-gradient(135deg,#a1c4fd,#c2e9fb)}
+.in4{background:linear-gradient(135deg,#fbc2eb,#a6c1ee)}
+
 button{
   width:100%;
   padding:14px;
   border:none;
-  border-radius:14px;
+  border-radius:16px;
   background:linear-gradient(135deg,#00c6ff,#0072ff);
   color:#fff;
-  font-size:16px;
+  font-size:15px;
   margin-top:12px;
   cursor:pointer;
 }
-button:disabled{opacity:.5}
+button:disabled{opacity:.4}
 .back{
   background:#ffffff22;
-  margin-bottom:12px;
+  font-size:13px;
 }
-.small{font-size:13px;opacity:.8}
+.small{font-size:12px;opacity:.8}
+
 .row{display:flex;gap:8px}
-.row input{width:50%}
+.code{width:30%}
+.num{width:70%}
+
+.codebox{
+  margin-top:12px;
+  background:#0008;
+  padding:12px;
+  border-radius:12px;
+  font-size:15px;
+  letter-spacing:2px;
+}
+.copy{margin-top:8px;font-size:13px}
 </style>
 </head>
 
 <body>
 
-<!-- Welcome Animation -->
+<!-- Welcome -->
 <div class="screen active" id="welcome">
-  <h1>Welcome To</h1>
+  <h1 style="animation:pulse 1.5s infinite">Welcome To</h1>
   <h2>Wasif MD Session Section</h2>
 </div>
 
-<!-- Name Screen -->
+<!-- Name -->
 <div class="screen" id="name">
   <div class="card">
     <h2>Enter Your Good Name</h2>
     <div class="row">
-      <input id="fname" placeholder="First Name (Required)">
-      <input id="lname" placeholder="Last Name (Optional)">
+      <input class="in1" id="fname" placeholder="First Name (Required)">
+      <input class="in2" id="lname" placeholder="Last Name (Optional)">
     </div>
     <p class="small">Example: Muzammil Khan</p>
     <button id="nameBtn" disabled>Submit</button>
@@ -109,12 +133,18 @@ button:disabled{opacity:.5}
   <div class="card">
     <button class="back" onclick="show('region')">Back</button>
     <h2>Enter Phone Number</h2>
+
     <div class="row">
-      <select id="code"></select>
-      <input id="number" placeholder="Phone Number">
+      <select class="in3 code" id="code"></select>
+      <input class="in4 num" id="number" placeholder="Phone Number">
     </div>
-    <button id="pairBtn" disabled>Request A Pair</button>
-    <p class="small">WhatsApp pairing will appear here</p>
+
+    <button id="pairBtn" disabled onclick="fakePair()">Request A Pair</button>
+
+    <div id="pairBox" style="display:none">
+      <div class="codebox" id="pairCode">123-456</div>
+      <button class="copy" onclick="copyCode()">Copy Code</button>
+    </div>
   </div>
 </div>
 
@@ -123,7 +153,7 @@ button:disabled{opacity:.5}
   <div class="card">
     <button class="back" onclick="show('home')">Back</button>
     <h2>QR Section</h2>
-    <p class="small">QR will be generated from backend</p>
+    <p class="small">QR will come from backend</p>
   </div>
 </div>
 
@@ -155,22 +185,20 @@ function show(id){
   document.getElementById(id).classList.add('active');
 }
 
-// Welcome delay
 setTimeout(()=>show('name'),3000);
 
-// Name validation
+// name
 const f=document.getElementById('fname');
 const b=document.getElementById('nameBtn');
-f.oninput=()=>{
-  b.disabled=!/^[A-Z][a-z]+$/.test(f.value);
-};
+f.oninput=()=>b.disabled=!/^[A-Z][a-z]+$/.test(f.value);
 b.onclick=()=>{
   document.getElementById('hello').innerHTML=
-    `Dear <span style="color:#00c6ff">${f.value}</span><br>Welcome To Wasif MD Session Generator`;
+  `Dear <span style="color:#00c6ff">${f.value}</span><br>
+   <span style="font-size:14px">Welcome To Wasif MD Session Generator</span>`;
   show('home');
-};
+}
 
-// Phone
+// phone
 function openPhone(type){
   const c=document.getElementById('code');
   c.innerHTML='';
@@ -180,9 +208,19 @@ function openPhone(type){
 }
 document.getElementById('number').oninput=e=>{
   document.getElementById('pairBtn').disabled=e.target.value.length<7;
-};
+}
 
-// WhatsApp open
+// fake pair UI
+function fakePair(){
+  document.getElementById('pairBox').style.display='block';
+}
+
+// copy
+function copyCode(){
+  navigator.clipboard.writeText("123-456");
+  show('home');
+}
+
 function wa(n){window.open('https://wa.me/'+n)}
 </script>
 
