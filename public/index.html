@@ -1,201 +1,3 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-<meta charset="UTF-8">
-<title>Wasif MD Session Generator</title>
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-
-<style>
-*{box-sizing:border-box;font-family:Poppins,Arial}
-body{
-  margin:0;
-  background:linear-gradient(135deg,#0f2027,#203a43,#2c5364);
-  color:#fff;
-  overflow:hidden;
-}
-.screen{
-  display:none;
-  height:100vh;
-  width:100%;
-  align-items:center;
-  justify-content:center;
-  flex-direction:column;
-  animation:fade .4s ease;
-}
-.screen.active{display:flex}
-@keyframes fade{
-  from{opacity:0;transform:scale(.96)}
-  to{opacity:1;transform:scale(1)}
-}
-
-.card{
-  width:92%;
-  max-width:420px;
-  background:#111c;
-  padding:22px;
-  border-radius:18px;
-  box-shadow:0 0 30px #000;
-  text-align:center;
-}
-
-h1,h2{margin:10px 0}
-
-input,select{
-  padding:14px;
-  border-radius:14px;
-  border:none;
-  margin:6px 0;
-  font-size:13px;
-  color:#000;
-  width:100%;
-}
-input::placeholder{font-size:12px}
-
-/* Inputs Colors */
-.in1{background:linear-gradient(135deg,#ffecd2,#fcb69f)}
-.in2{background:linear-gradient(135deg,#d4fc79,#96e6a1)}
-.in3{background:linear-gradient(135deg,#a1c4fd,#c2e9fb)}
-.in4{background:linear-gradient(135deg,#fbc2eb,#a6c1ee)}
-
-/* Buttons – ALL DIFFERENT */
-.btn1{background:linear-gradient(135deg,#00c6ff,#0072ff)}
-.btn2{background:linear-gradient(135deg,#f7971e,#ffd200)}
-.btn3{background:linear-gradient(135deg,#fc5c7d,#6a82fb)}
-.btn4{background:linear-gradient(135deg,#43cea2,#185a9d)}
-.btn5{background:linear-gradient(135deg,#ff512f,#dd2476)}
-.btn6{background:linear-gradient(135deg,#8360c3,#2ebf91)}
-.btnBack{background:linear-gradient(135deg,#555,#222)}
-
-button{
-  width:100%;
-  padding:14px;
-  border:none;
-  border-radius:16px;
-  color:#fff;
-  font-size:14px;
-  margin-top:10px;
-  cursor:pointer;
-}
-button:disabled{opacity:.4}
-
-.small{font-size:12px;opacity:.8}
-
-/* Rows FIX */
-.row{
-  display:flex;
-  gap:8px;
-  flex-wrap:wrap;
-}
-.row input{
-  flex:1 1 48%;
-}
-
-/* Phone row */
-.code{flex:0 0 30%}
-.num{flex:1}
-
-.codebox{
-  margin-top:12px;
-  background:#0008;
-  padding:12px;
-  border-radius:12px;
-  font-size:15px;
-  letter-spacing:2px;
-}
-</style>
-</head>
-
-<body>
-
-<!-- Welcome -->
-<div class="screen active" id="welcome">
-  <h1 style="animation:pulse 1.5s infinite">Welcome To</h1>
-  <h2>Wasif MD Session Section</h2>
-</div>
-
-<!-- Name -->
-<div class="screen" id="name">
-  <div class="card">
-    <h2>Enter Your Good Name</h2>
-    <div class="row">
-      <input class="in1" id="fname" placeholder="First Name (Required)">
-      <input class="in2" id="lname" placeholder="Last Name (Optional)">
-    </div>
-    <p class="small">Example: Muzammil Khan</p>
-    <button class="btn1" id="nameBtn" disabled>Submit</button>
-  </div>
-</div>
-
-<!-- Home -->
-<div class="screen" id="home">
-  <div class="card">
-    <h2 id="hello"></h2>
-    <button class="btn2" onclick="show('region')">Link With Phone Number</button>
-    <button class="btn3" onclick="show('qr')">Link With QR</button>
-    <button class="btn4" onclick="show('help')">Help</button>
-  </div>
-</div>
-
-<!-- Region -->
-<div class="screen" id="region">
-  <div class="card">
-    <button class="btnBack" onclick="show('home')">Back</button>
-    <h2>Select Your Region</h2>
-    <button class="btn5" onclick="openPhone('pk')">Pakistan</button>
-    <button class="btn6" onclick="openPhone('all')">Other Country</button>
-  </div>
-</div>
-
-<!-- Phone -->
-<div class="screen" id="phone">
-  <div class="card">
-    <button class="btnBack" onclick="show('region')">Back</button>
-    <h2>Enter Phone Number</h2>
-
-    <div class="row">
-      <select class="in3 code" id="code"></select>
-      <input class="in4 num" id="number" placeholder="Phone Number">
-    </div>
-
-    <button class="btn1" id="pairBtn" disabled onclick="fakePair()">Request A Pair</button>
-
-    <div id="pairBox" style="display:none">
-      <div class="codebox" id="pairCode">123-456</div>
-      <button class="btn2" onclick="copyCode()">Copy Code</button>
-    </div>
-  </div>
-</div>
-
-<!-- QR -->
-<div class="screen" id="qr">
-  <div class="card">
-    <button class="btnBack" onclick="show('home')">Back</button>
-    <h2>QR Section</h2>
-    <p class="small">QR will come from backend</p>
-  </div>
-</div>
-
-<!-- Help -->
-<div class="screen" id="help">
-  <div class="card">
-    <button class="btnBack" onclick="show('home')">Back</button>
-    <h2>Welcome To Help Section</h2>
-    <button class="btn3" onclick="show('admin')">Contact Admin</button>
-    <button class="btn4" onclick="window.open('https://whatsapp.com/channel/0029Vasn4ipCBtxCxfJqgV3S')">
-      Owner Channel
-    </button>
-  </div>
-</div>
-
-<!-- Admin -->
-<div class="screen" id="admin">
-  <div class="card">
-    <button class="btnBack" onclick="show('help')">Back</button>
-    <button class="btn5" onclick="wa('923039107958')">Wasif</button>
-    <button class="btn6" onclick="wa('923053956147')">Muzammil</button>
-  </div>
-</div>
-
 <script>
 const screens=document.querySelectorAll('.screen');
 function show(id){
@@ -204,6 +6,7 @@ function show(id){
 }
 setTimeout(()=>show('name'),3000);
 
+// Name validation
 const f=document.getElementById('fname');
 const b=document.getElementById('nameBtn');
 f.oninput=()=>b.disabled=!/^[A-Z][a-z]+$/.test(f.value);
@@ -212,29 +15,61 @@ b.onclick=()=>{
   `Dear <span style="color:#00c6ff">${f.value}</span><br>
    <span style="font-size:14px">Welcome To Wasif MD Session Generator</span>`;
   show('home');
-}
+};
 
+// Region → Phone
 function openPhone(type){
   const c=document.getElementById('code');
-  c.innerHTML= type==='pk'
-   ? '<option>+92</option>'
-   : '<option>+92</option><option>+1</option><option>+44</option>';
+  c.innerHTML = type==='pk'
+    ? '<option value="+92">+92</option>'
+    : '<option value="+92">+92</option><option value="+1">+1</option><option value="+44">+44</option>';
   show('phone');
 }
 
+// Enable pair button
 document.getElementById('number').oninput=e=>{
-  document.getElementById('pairBtn').disabled=e.target.value.length<7;
+  document.getElementById('pairBtn').disabled = e.target.value.length < 7;
+};
+
+// ✅ REAL WHATSAPP PAIRING
+async function fakePair(){
+  const code = document.getElementById("code").value.replace("+","");
+  const number = document.getElementById("number").value.trim();
+  if(!number) return alert("Enter phone number");
+
+  const btn = document.getElementById("pairBtn");
+  btn.disabled = true;
+  btn.innerText = "Requesting...";
+
+  try{
+    const res = await fetch("/pair",{
+      method:"POST",
+      headers:{ "Content-Type":"application/json" },
+      body: JSON.stringify({ number: code + number })
+    });
+
+    const data = await res.json();
+
+    if(data.code){
+      document.getElementById("pairCode").innerText = data.code;
+      document.getElementById("pairBox").style.display = "block";
+    }else{
+      alert("Pairing failed");
+    }
+  }catch(e){
+    alert("Server not responding");
+  }
+
+  btn.innerText = "Request A Pair";
+  btn.disabled = false;
 }
 
-function fakePair(){
-  document.getElementById('pairBox').style.display='block';
-}
 function copyCode(){
-  navigator.clipboard.writeText("123-456");
-  show('home');
+  const code = document.getElementById("pairCode").innerText;
+  navigator.clipboard.writeText(code);
 }
-function wa(n){window.open('https://wa.me/'+n)}
-</script>
 
-</body>
-</html>
+function wa(n){
+  window.open("https://wa.me/"+n);
+}
+</script>
