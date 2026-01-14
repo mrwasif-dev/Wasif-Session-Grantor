@@ -2,105 +2,172 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<title>Wasif Session Generator</title>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Wasif Session Grantor</title>
+
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;500;700&display=swap" rel="stylesheet">
 
 <style>
-*{box-sizing:border-box}
-body{
+*{
   margin:0;
-  height:100vh;
+  padding:0;
+  box-sizing:border-box;
+  font-family:'Poppins',sans-serif;
+}
+
+body{
+  min-height:100vh;
+  background:linear-gradient(135deg,#0f2027,#203a43,#2c5364);
   display:flex;
-  justify-content:center;
   align-items:center;
-  background:linear-gradient(135deg,#667eea,#764ba2);
-  font-family:Arial,Helvetica,sans-serif;
+  justify-content:center;
   color:#fff;
 }
-.card{
-  width:90%;
+
+.app{
+  width:100%;
   max-width:420px;
-  background:#1e1e2f;
-  border-radius:18px;
   padding:25px;
-  box-shadow:0 20px 40px rgba(0,0,0,.4);
+  animation:fadeIn .6s ease;
 }
-h2{text-align:center;margin-bottom:20px}
-button{
+
+@keyframes fadeIn{
+  from{opacity:0; transform:translateY(20px);}
+  to{opacity:1; transform:translateY(0);}
+}
+
+.card{
+  background:rgba(255,255,255,0.08);
+  border-radius:20px;
+  padding:30px 20px;
+  box-shadow:0 20px 40px rgba(0,0,0,.4);
+  text-align:center;
+}
+
+h1{
+  font-size:26px;
+  margin-bottom:25px;
+  background:linear-gradient(90deg,#00f2fe,#4facfe,#43e97b);
+  -webkit-background-clip:text;
+  -webkit-text-fill-color:transparent;
+  font-weight:700;
+}
+
+.btn{
   width:100%;
   padding:14px;
   margin:10px 0;
   border:none;
-  border-radius:12px;
+  border-radius:14px;
   font-size:16px;
+  font-weight:500;
+  color:#fff;
   cursor:pointer;
+  transition:.3s;
 }
-.green{background:#4CAF50;color:#fff}
-.blue{background:#2196F3;color:#fff}
-.orange{background:#FF9800;color:#fff}
-.purple{background:#9C27B0;color:#fff}
-.gray{background:#607D8B;color:#fff}
+
+.btn:hover{transform:scale(1.04);}
+
+.b1{background:linear-gradient(90deg,#36d1dc,#5b86e5);}
+.b2{background:linear-gradient(90deg,#11998e,#38ef7d);}
+.b3{background:linear-gradient(90deg,#fc466b,#3f5efb);}
+.b4{background:linear-gradient(90deg,#f7971e,#ffd200); color:#222;}
+
+.back{
+  display:flex;
+  align-items:center;
+  justify-content:flex-start;
+  margin-bottom:15px;
+  cursor:pointer;
+  font-size:15px;
+}
+
+.back span{
+  width:36px;
+  height:36px;
+  border-radius:50%;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  background:linear-gradient(135deg,#00f2fe,#4facfe);
+  margin-right:10px;
+  box-shadow:0 5px 15px rgba(0,0,0,.4);
+}
+
+.hidden{display:none;}
 
 input{
   width:100%;
   padding:14px;
   border-radius:12px;
   border:none;
-  margin:12px 0;
-  font-size:16px;
+  outline:none;
+  margin:15px 0;
+  font-size:15px;
 }
-.back{
-  cursor:pointer;
-  font-size:20px;
-  margin-bottom:10px;
-  display:inline-block;
+
+.fade{
+  animation:slide .4s ease;
 }
-pre{
-  background:#000;
-  padding:12px;
-  border-radius:10px;
-  overflow:auto;
+
+@keyframes slide{
+  from{opacity:0; transform:translateX(30px);}
+  to{opacity:1; transform:translateX(0);}
 }
-.hidden{display:none}
 </style>
 </head>
 
 <body>
 
-<div class="card" id="home">
-  <h2>WhatsApp Session Generator</h2>
-  <button class="green" onclick="show('phone')">Link With Phone Number</button>
-  <button class="blue" onclick="show('qr')">Link With QR</button>
-  <button class="orange" onclick="show('help')">Help</button>
-</div>
+<div class="app">
 
-<div class="card hidden" id="phone">
-  <span class="back" onclick="back()">⬅</span>
-  <h2>Link With Phone</h2>
-  <input id="phoneInput" placeholder="92XXXXXXXXXX">
-  <button class="green" onclick="pair()">Request Pair</button>
-  <pre id="pairCode"></pre>
-</div>
+  <!-- HOME -->
+  <div id="home" class="card fade">
+    <h1>Welcome To Wasif MD</h1>
+    <button class="btn b1" onclick="show('phone')">Link With Phone Number</button>
+    <button class="btn b2" onclick="show('qr')">Link With QR</button>
+    <button class="btn b3" onclick="show('help')">Help</button>
+  </div>
 
-<div class="card hidden" id="qr">
-  <span class="back" onclick="back()">⬅</span>
-  <h2>Scan QR</h2>
-  <img id="qrImg" style="width:100%;border-radius:12px">
-</div>
+  <!-- PHONE -->
+  <div id="phone" class="card hidden fade">
+    <div class="back" onclick="back()">
+      <span>←</span> Back
+    </div>
+    <h1>Pair With Number</h1>
+    <input placeholder="Enter WhatsApp Number">
+    <button class="btn b2">Request Pair</button>
+  </div>
 
-<div class="card hidden" id="help">
-  <span class="back" onclick="back()">⬅</span>
-  <h2>Help</h2>
-  <button class="purple" onclick="show('admin')">Contact Admin</button>
-  <button class="gray" onclick="openChannel()">Owner Channel</button>
-</div>
+  <!-- QR -->
+  <div id="qr" class="card hidden fade">
+    <div class="back" onclick="back()">
+      <span>←</span> Back
+    </div>
+    <h1>Scan QR Code</h1>
+    <p>QR will appear here</p>
+  </div>
 
-<div class="card hidden" id="admin">
-  <span class="back" onclick="show('help')">⬅</span>
-  <h2>Admins</h2>
-  <button class="green" onclick="openWhatsApp()">Wasif</button>
-  <button class="blue">Muzammil</button>
-  <button class="orange">Hadi</button>
+  <!-- HELP -->
+  <div id="help" class="card hidden fade">
+    <div class="back" onclick="back()">
+      <span>←</span> Back
+    </div>
+    <h1>Help</h1>
+    <button class="btn b1" onclick="show('admin')">Contact Admin</button>
+    <button class="btn b4" onclick="openOwner()">Owner Channel</button>
+  </div>
+
+  <!-- ADMIN -->
+  <div id="admin" class="card hidden fade">
+    <div class="back" onclick="show('help')">
+      <span>←</span> Back
+    </div>
+    <h1>Admins</h1>
+    <button class="btn b1" onclick="openWasif()">Wasif</button>
+    <button class="btn b2" onclick="openMuzammil()">Muzammil</button>
+  </div>
+
 </div>
 
 <script>
@@ -108,30 +175,21 @@ function show(id){
   document.querySelectorAll('.card').forEach(c=>c.classList.add('hidden'));
   document.getElementById(id).classList.remove('hidden');
 }
-function back(){show('home');}
 
-function openChannel(){
+function back(){
+  show('home');
+}
+
+function openOwner(){
   window.open("https://whatsapp.com/channel/0029Vasn4ipCBtxCxfJqgV3S","_blank");
 }
-function openWhatsApp(){
+
+function openWasif(){
   window.open("https://wa.me/923039107958","_blank");
 }
 
-/* backend calls */
-async function loadQR(){
-  const r = await fetch("/qr");
-  const d = await r.json();
-  if(d.qr) qrImg.src=d.qr;
-}
-async function pair(){
-  const phone = phoneInput.value;
-  const r = await fetch("/pair",{
-    method:"POST",
-    headers:{"Content-Type":"application/json"},
-    body:JSON.stringify({phone})
-  });
-  const d = await r.json();
-  pairCode.innerText=d.code || d.error;
+function openMuzammil(){
+  window.open("https://wa.me/923053956147","_blank");
 }
 </script>
 
