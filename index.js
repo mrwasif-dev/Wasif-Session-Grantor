@@ -10,11 +10,15 @@ const app = express();
 app.use(express.json());
 app.use(express.static("public"));
 
-let sock;
+let sock = null;
 let latestQR = null;
 let status = "Idle";
+let initializing = false;
 
-async function startSock() {
+async function initSock() {
+  if (sock || initializing) return;
+  initializing = true;
+
   const { state, saveCreds } = await useMultiFileAuthState("auth");
 
   sock = makeWASocket({
@@ -32,8 +36,19 @@ async function startSock() {
       status = "Logged In";
     }
   });
+
+  initializing = false;
 }
-startSock();
+
+/* ensure socket before any action */
+app.use(async (req, res, next) => {
+  try {
+    await initSock();
+    next();
+  } catch (e) {
+    res.status(500).json({ error: e.message });
+  }
+});
 
 /* QR */
 app.get("/qr", (req, res) => {
@@ -41,15 +56,20 @@ app.get("/qr", (req, res) => {
   res.json({ qr: latestQR });
 });
 
-/* Phone pairing */
+/* Phone Pairing */
 app.post("/pair", async (req, res) => {
-  const phone = req.body.phone;
-  if (!phone) return res.json({ error: "Phone required" });
+  try {
+    const phone = req.body.phone;
+    if (!phone) return res.json({ error: "Phone required" });
 
-  setTimeout(async () => {
-    const code = await sock.requestPairingCode(phone.replace(/\D/g, ""));
+    const code = await sock.requestPairingCode(
+      phone.replace(/\D/g, "")
+    );
     res.json({ code });
-  }, 2000);
+
+  } catch (e) {
+    res.json({ error: e.message });
+  }
 });
 
 /* Status */
@@ -68,4 +88,6 @@ app.get("/session", (req, res) => {
 });
 
 const PORT = process.env.PORT || 3000;
-app.listen(PORT, () => console.log("✅ App Running"));
+app.listen(PORT, () =>
+  console.log("✅ Web Session Generator Running")
+);
