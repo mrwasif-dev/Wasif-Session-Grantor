@@ -2,205 +2,188 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Wasif MD Session Generator</title>
-
-<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&family=Playfair+Display:wght@600&display=swap" rel="stylesheet">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 
 <style>
-*{margin:0;padding:0;box-sizing:border-box;font-family:Poppins}
+*{box-sizing:border-box;font-family:Poppins,Arial}
 body{
-  min-height:100vh;
+  margin:0;
   background:linear-gradient(135deg,#0f2027,#203a43,#2c5364);
-  display:flex;justify-content:center;align-items:center;color:#fff
+  color:#fff;
+  overflow:hidden;
 }
-.hidden{display:none}
-.app{width:100%;max-width:420px;padding:20px}
-
+.screen{
+  display:none;
+  height:100vh;
+  width:100%;
+  align-items:center;
+  justify-content:center;
+  flex-direction:column;
+  transition:opacity .4s,transform .4s;
+}
+.screen.active{display:flex}
 .card{
-  background:rgba(255,255,255,.08);
-  padding:22px;
-  border-radius:20px;
-  box-shadow:0 20px 40px rgba(0,0,0,.4);
-  animation:fade .4s ease;
-  text-align:center
+  width:90%;
+  max-width:420px;
+  background:#111c;
+  padding:25px;
+  border-radius:16px;
+  box-shadow:0 0 25px #000;
+  text-align:center;
 }
-@keyframes fade{from{opacity:0;transform:translateY(20px)}to{opacity:1}}
-
-h1{
-  font-size:22px;
-  background:linear-gradient(90deg,#00f2fe,#4facfe,#43e97b);
-  -webkit-background-clip:text;
-  -webkit-text-fill-color:transparent;
-  margin-bottom:14px
-}
-
-.btn{
-  width:100%;padding:14px;margin:8px 0;
-  border:none;border-radius:14px;
-  font-size:16px;color:#fff;cursor:pointer
-}
-.b1{background:linear-gradient(90deg,#36d1dc,#5b86e5)}
-.b2{background:linear-gradient(90deg,#11998e,#38ef7d)}
-.b3{background:linear-gradient(90deg,#fc466b,#3f5efb)}
-.btn:disabled{opacity:.4}
-
-.back{
-  width:32px;height:32px;border-radius:50%;
-  background:linear-gradient(135deg,#667eea,#764ba2);
-  display:flex;align-items:center;justify-content:center;
-  cursor:pointer;margin-bottom:10px
-}
-
+h1,h2{margin:10px 0}
 input,select{
-  padding:12px;border-radius:12px;border:none;font-size:15px
+  width:100%;
+  padding:14px;
+  border-radius:12px;
+  border:none;
+  margin:8px 0;
+  font-size:15px;
 }
-.row{
-  display:flex;gap:8px
+button{
+  width:100%;
+  padding:14px;
+  border:none;
+  border-radius:14px;
+  background:linear-gradient(135deg,#00c6ff,#0072ff);
+  color:#fff;
+  font-size:16px;
+  margin-top:12px;
+  cursor:pointer;
 }
-.row select{width:35%}
-.row input{width:65%}
-
-.loader{
-  width:40px;height:40px;border:4px solid #fff;
-  border-top:4px solid transparent;
-  border-radius:50%;animation:spin 1s linear infinite;
-  margin:14px auto
+button:disabled{opacity:.5}
+.back{
+  background:#ffffff22;
+  margin-bottom:12px;
 }
-@keyframes spin{to{transform:rotate(360deg)}}
-
-.nameHighlight{
-  font-family:'Playfair Display',serif;
-  font-size:26px;color:#ffd200;margin:6px 0
-}
+.small{font-size:13px;opacity:.8}
+.row{display:flex;gap:8px}
+.row input{width:50%}
 </style>
 </head>
 
 <body>
-<div class="app">
 
-<!-- NAME -->
-<div id="name" class="card">
-  <h1>Enter Your Good Name</h1>
-  <input id="fname" placeholder="First Name (Required)">
-  <input id="lname" placeholder="Second Name (Optional)">
-  <div id="nErr" style="color:#ff6b6b;font-size:13px"></div>
-  <button id="nBtn" class="btn b1" disabled>Submit</button>
+<!-- Welcome Animation -->
+<div class="screen active" id="welcome">
+  <h1>Welcome To</h1>
+  <h2>Wasif MD Session Section</h2>
 </div>
 
-<!-- HOME -->
-<div id="home" class="card hidden">
-  <div>Dear</div>
-  <div id="uname" class="nameHighlight"></div>
-  <div>Welcome To Wasif MD Session Generator</div>
-  <button class="btn b1" onclick="show('pair')">Link With Phone Number</button>
-  <button class="btn b2" onclick="show('help')">Help</button>
-</div>
-
-<!-- PAIR -->
-<div id="pair" class="card hidden">
-  <div class="back" onclick="show('home')">‹</div>
-  <h1>Pair WhatsApp</h1>
-
-  <div class="row">
-    <select id="cc">
-      <option value="+92">🇵🇰 +92</option>
-      <option value="+1">🇺🇸 +1</option>
-      <option value="+44">🇬🇧 +44</option>
-    </select>
-    <input id="num" placeholder="3XXXXXXXXX">
+<!-- Name Screen -->
+<div class="screen" id="name">
+  <div class="card">
+    <h2>Enter Your Good Name</h2>
+    <div class="row">
+      <input id="fname" placeholder="First Name (Required)">
+      <input id="lname" placeholder="Last Name (Optional)">
+    </div>
+    <p class="small">Example: Muzammil Khan</p>
+    <button id="nameBtn" disabled>Submit</button>
   </div>
-
-  <button class="btn b2" onclick="requestPair()">Request A Pair</button>
 </div>
 
-<!-- CODE -->
-<div id="codeBox" class="card hidden">
-  <h1>Enter This Code In WhatsApp</h1>
-  <input id="pairCode" readonly>
-  <button class="btn b3" onclick="copyCode()">Copy Code</button>
+<!-- Home -->
+<div class="screen" id="home">
+  <div class="card">
+    <h2 id="hello"></h2>
+    <button onclick="show('region')">Link With Phone Number</button>
+    <button onclick="show('qr')">Link With QR</button>
+    <button onclick="show('help')">Help</button>
+  </div>
 </div>
 
-<!-- LOGIN -->
-<div id="login" class="card hidden">
-  <h1>Device Logging</h1>
-  <div class="loader"></div>
-  <div>Please wait…</div>
+<!-- Region -->
+<div class="screen" id="region">
+  <div class="card">
+    <button class="back" onclick="show('home')">Back</button>
+    <h2>Select Your Region</h2>
+    <button onclick="openPhone('pk')">Pakistan</button>
+    <button onclick="openPhone('all')">Other Country</button>
+  </div>
 </div>
 
-<!-- SESSION -->
-<div id="session" class="card hidden">
-  <h1>Session ID</h1>
-  <input id="sid" readonly>
+<!-- Phone -->
+<div class="screen" id="phone">
+  <div class="card">
+    <button class="back" onclick="show('region')">Back</button>
+    <h2>Enter Phone Number</h2>
+    <div class="row">
+      <select id="code"></select>
+      <input id="number" placeholder="Phone Number">
+    </div>
+    <button id="pairBtn" disabled>Request A Pair</button>
+    <p class="small">WhatsApp pairing will appear here</p>
+  </div>
 </div>
 
-<!-- HELP -->
-<div id="help" class="card hidden">
-  <div class="back" onclick="show('home')">‹</div>
-  <h1>Welcome To Help Section</h1>
-  <button class="btn b1" onclick="show('admin')">Contact Admin</button>
-  <button class="btn b2" onclick="window.open('https://whatsapp.com/channel/0029Vasn4ipCBtxCxfJqgV3S')">Owner Channel</button>
+<!-- QR -->
+<div class="screen" id="qr">
+  <div class="card">
+    <button class="back" onclick="show('home')">Back</button>
+    <h2>QR Section</h2>
+    <p class="small">QR will be generated from backend</p>
+  </div>
 </div>
 
-<!-- ADMIN -->
-<div id="admin" class="card hidden">
-  <div class="back" onclick="show('help')">‹</div>
-  <h1>Contact Admin</h1>
-  <button class="btn b1" onclick="wa('+923039107958')">Wasif</button>
-  <button class="btn b2" onclick="wa('+923053956147')">Muzammil</button>
+<!-- Help -->
+<div class="screen" id="help">
+  <div class="card">
+    <button class="back" onclick="show('home')">Back</button>
+    <h2>Welcome To Help Section</h2>
+    <button onclick="show('admin')">Contact Admin</button>
+    <button onclick="window.open('https://whatsapp.com/channel/0029Vasn4ipCBtxCxfJqgV3S')">
+      Owner Channel
+    </button>
+  </div>
 </div>
 
+<!-- Admin -->
+<div class="screen" id="admin">
+  <div class="card">
+    <button class="back" onclick="show('help')">Back</button>
+    <button onclick="wa('923039107958')">Wasif</button>
+    <button onclick="wa('923053956147')">Muzammil</button>
+  </div>
 </div>
 
 <script>
-const fname=fnameInput=document.getElementById("fname");
-const lname=document.getElementById("lname");
-const err=document.getElementById("nErr");
-const btn=document.getElementById("nBtn");
-
-const valid=n=>/^[A-Z][a-z]+$/.test(n);
-
-fname.oninput=lname.oninput=()=>{
-  if(!fname.value) return err.textContent="First Name required",btn.disabled=true;
-  if(!valid(fname.value)|| (lname.value && !valid(lname.value)))
-    return err.textContent="Format: Muzammil",btn.disabled=true;
-  err.textContent="";btn.disabled=false;
-};
-
-btn.onclick=()=>{
-  uname.innerText=fname.value+(lname.value?" "+lname.value:"");
-  show("home");
-};
-
+const screens=document.querySelectorAll('.screen');
 function show(id){
-  document.querySelectorAll(".card").forEach(c=>c.classList.add("hidden"));
-  document.getElementById(id).classList.remove("hidden");
+  screens.forEach(s=>s.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
 }
 
-function wa(n){window.open("https://wa.me/"+n.replace("+",""))}
+// Welcome delay
+setTimeout(()=>show('name'),3000);
 
-async function requestPair(){
-  const phone=cc.value+num.value;
-  show("codeBox");
+// Name validation
+const f=document.getElementById('fname');
+const b=document.getElementById('nameBtn');
+f.oninput=()=>{
+  b.disabled=!/^[A-Z][a-z]+$/.test(f.value);
+};
+b.onclick=()=>{
+  document.getElementById('hello').innerHTML=
+    `Dear <span style="color:#00c6ff">${f.value}</span><br>Welcome To Wasif MD Session Generator`;
+  show('home');
+};
 
-  // 🔴 REAL BACKEND CALL
-  const r=await fetch("/pair",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({phone})});
-  const d=await r.json();
-
-  pairCode.value=d.code;
-
-  setTimeout(()=>{
-    show("login");
-    setTimeout(()=>{
-      show("session");
-      sid.value=d.session;
-    },4000);
-  },8000);
+// Phone
+function openPhone(type){
+  const c=document.getElementById('code');
+  c.innerHTML='';
+  if(type==='pk') c.innerHTML='<option>+92</option>';
+  else c.innerHTML='<option>+92</option><option>+1</option><option>+44</option>';
+  show('phone');
 }
+document.getElementById('number').oninput=e=>{
+  document.getElementById('pairBtn').disabled=e.target.value.length<7;
+};
 
-function copyCode(){
-  navigator.clipboard.writeText(pairCode.value);
-}
+// WhatsApp open
+function wa(n){window.open('https://wa.me/'+n)}
 </script>
 
 </body>
