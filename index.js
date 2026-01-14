@@ -1,43 +1,64 @@
-const express = require("express");
-const cors = require("cors");
-const path = require("path");
+import express from "express"
+import cors from "cors"
+import makeWASocket, {
+  useMultiFileAuthState
+} from "@whiskeysockets/baileys"
+import pino from "pino"
 
-const app = express();
+const app = express()
+app.use(cors())
+app.use(express.json())
 
-// Middlewares
-app.use(cors());
-app.use(express.json());
-app.use(express.urlencoded({ extended: true }));
+let sock
+let sessionId = null
 
-// ✅ Public folder (HTML, CSS, JS)
-app.use(express.static(path.join(__dirname, "public")));
+async function startWA () {
+  const { state, saveCreds } =
+    await useMultiFileAuthState("session")
 
-// ✅ Pair API (abhi dummy – crash nahi karega)
-app.post("/pair", (req, res) => {
-  const { phone } = req.body;
+  sock = makeWASocket({
+    logger: pino({ level: "silent" }),
+    auth: state,
+    printQRInTerminal: false
+  })
 
-  if (!phone) {
-    return res.status(400).json({
-      success: false,
-      message: "Phone number required"
-    });
+  sock.ev.on("creds.update", saveCreds)
+
+  sock.ev.on("connection.update", (update) => {
+    if (update.connection === "open") {
+      sessionId = Buffer
+        .from(JSON.stringify(state.creds))
+        .toString("base64")
+      console.log("✅ WhatsApp Connected")
+    }
+  })
+}
+startWA()
+
+// 🔗 Pair Request
+app.post("/pair", async (req, res) => {
+  try {
+    let { number } = req.body
+    number = number.replace(/\D/g, "")
+
+    const code = await sock.requestPairingCode(number)
+
+    res.json({
+      code: code.match(/.{1,4}/g).join("-")
+    })
+  } catch (e) {
+    res.json({ error: "Pairing failed" })
   }
+})
 
-  // Test response (Baad mein WhatsApp logic add hoga)
-  res.json({
-    success: true,
-    message: "Pair request received",
-    code: "123-456"
-  });
-});
+// 📦 Session
+app.get("/session", (req, res) => {
+  if (!sessionId)
+    return res.json({ error: "Not ready" })
 
-// ✅ Fallback (agar koi route miss ho)
-app.get("*", (req, res) => {
-  res.sendFile(path.join(__dirname, "public", "index.html"));
-});
+  res.json({ session: sessionId })
+})
 
-// ✅ Heroku PORT
-const PORT = process.env.PORT || 3000;
-app.listen(PORT, () => {
-  console.log("Wasif MD Session Generator running on port", PORT);
-});
+app.listen(process.env.PORT || 3000, () =>
+  console.log("🚀 Server Started")
+)
