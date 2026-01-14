@@ -1,132 +1,137 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
 <meta charset="UTF-8">
-<title>Wasif MD Session Generator</title>
+<title>Wasif Session Generator</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
 <style>
-body {
-  background: linear-gradient(135deg,#667eea,#764ba2);
-  font-family: Arial;
-  color: #fff;
-  text-align: center;
+*{box-sizing:border-box}
+body{
+  margin:0;
+  height:100vh;
+  display:flex;
+  justify-content:center;
+  align-items:center;
+  background:linear-gradient(135deg,#667eea,#764ba2);
+  font-family:Arial,Helvetica,sans-serif;
+  color:#fff;
 }
-.box {
+.card{
+  width:90%;
+  max-width:420px;
   background:#1e1e2f;
-  width: 90%;
-  max-width: 420px;
-  margin: 40px auto;
-  padding: 25px;
-  border-radius: 15px;
+  border-radius:18px;
+  padding:25px;
+  box-shadow:0 20px 40px rgba(0,0,0,.4);
 }
-button {
-  width: 100%;
-  padding: 12px;
-  margin: 8px 0;
-  border: none;
-  border-radius: 10px;
-  font-size: 16px;
-  cursor: pointer;
+h2{text-align:center;margin-bottom:20px}
+button{
+  width:100%;
+  padding:14px;
+  margin:10px 0;
+  border:none;
+  border-radius:12px;
+  font-size:16px;
+  cursor:pointer;
 }
-.btn1 {background:#4CAF50;color:#fff;}
-.btn2 {background:#2196F3;color:#fff;}
-.btn3 {background:#FF9800;color:#fff;}
-input {
-  width: 100%;
-  padding: 12px;
-  border-radius: 10px;
-  border: none;
-  margin: 10px 0;
+.green{background:#4CAF50;color:#fff}
+.blue{background:#2196F3;color:#fff}
+.orange{background:#FF9800;color:#fff}
+.purple{background:#9C27B0;color:#fff}
+.gray{background:#607D8B;color:#fff}
+
+input{
+  width:100%;
+  padding:14px;
+  border-radius:12px;
+  border:none;
+  margin:12px 0;
+  font-size:16px;
 }
-pre {
+.back{
+  cursor:pointer;
+  font-size:20px;
+  margin-bottom:10px;
+  display:inline-block;
+}
+pre{
   background:#000;
-  padding:10px;
+  padding:12px;
   border-radius:10px;
   overflow:auto;
 }
-.copy {
-  background:#9C27B0;
-  color:#fff;
-}
-img {width:100%; border-radius:10px;}
-a {color:#fff;}
+.hidden{display:none}
 </style>
 </head>
 
 <body>
 
-<div class="box" id="home">
+<div class="card" id="home">
   <h2>WhatsApp Session Generator</h2>
-  <button class="btn1" onclick="showPhone()">Link With Phone Number</button>
-  <button class="btn2" onclick="showQR()">Link With QR</button>
-  <button class="btn3" onclick="openHelp()">Help</button>
+  <button class="green" onclick="show('phone')">Link With Phone Number</button>
+  <button class="blue" onclick="show('qr')">Link With QR</button>
+  <button class="orange" onclick="show('help')">Help</button>
 </div>
 
-<div class="box" id="qrBox" style="display:none">
-  <h3>Scan QR Code</h3>
-  <img id="qrImg">
-</div>
-
-<div class="box" id="phoneBox" style="display:none">
-  <h3>Link With Phone</h3>
-  <input id="phone" placeholder="92XXXXXXXXXX">
-  <button class="btn1" onclick="pair()">Request Pair</button>
+<div class="card hidden" id="phone">
+  <span class="back" onclick="back()">⬅</span>
+  <h2>Link With Phone</h2>
+  <input id="phoneInput" placeholder="92XXXXXXXXXX">
+  <button class="green" onclick="pair()">Request Pair</button>
   <pre id="pairCode"></pre>
-  <button class="copy" onclick="copy('pairCode')">Copy Code</button>
 </div>
 
-<div class="box" id="statusBox" style="display:none">
-  <h3 id="loginStatus">Logging in...</h3>
-  <pre id="session"></pre>
-  <button class="copy" onclick="copy('session')">Copy Session</button>
+<div class="card hidden" id="qr">
+  <span class="back" onclick="back()">⬅</span>
+  <h2>Scan QR</h2>
+  <img id="qrImg" style="width:100%;border-radius:12px">
+</div>
+
+<div class="card hidden" id="help">
+  <span class="back" onclick="back()">⬅</span>
+  <h2>Help</h2>
+  <button class="purple" onclick="show('admin')">Contact Admin</button>
+  <button class="gray" onclick="openChannel()">Owner Channel</button>
+</div>
+
+<div class="card hidden" id="admin">
+  <span class="back" onclick="show('help')">⬅</span>
+  <h2>Admins</h2>
+  <button class="green" onclick="openWhatsApp()">Wasif</button>
+  <button class="blue">Muzammil</button>
+  <button class="orange">Hadi</button>
 </div>
 
 <script>
-function showPhone(){
-  home.style.display="none";
-  phoneBox.style.display="block";
+function show(id){
+  document.querySelectorAll('.card').forEach(c=>c.classList.add('hidden'));
+  document.getElementById(id).classList.remove('hidden');
 }
-function showQR(){
-  home.style.display="none";
-  qrBox.style.display="block";
-  loadQR();
+function back(){show('home');}
+
+function openChannel(){
+  window.open("https://whatsapp.com/channel/0029Vasn4ipCBtxCxfJqgV3S","_blank");
 }
-function openHelp(){
-  window.open("PUT_YOUR_HELP_LINK_HERE","_blank");
+function openWhatsApp(){
+  window.open("https://wa.me/923039107958","_blank");
 }
 
+/* backend calls */
 async function loadQR(){
   const r = await fetch("/qr");
   const d = await r.json();
-  if(d.qr) qrImg.src = d.qr;
+  if(d.qr) qrImg.src=d.qr;
 }
-
 async function pair(){
-  const phone = document.getElementById("phone").value;
+  const phone = phoneInput.value;
   const r = await fetch("/pair",{
     method:"POST",
     headers:{"Content-Type":"application/json"},
     body:JSON.stringify({phone})
   });
   const d = await r.json();
-  pairCode.innerText = d.code;
-  checkLogin();
-}
-
-async function checkLogin(){
-  statusBox.style.display="block";
-  setInterval(async()=>{
-    const s = await fetch("/status").then(r=>r.json());
-    loginStatus.innerText = s.status;
-    if(s.status==="Logged In"){
-      const ses = await fetch("/session").then(r=>r.json());
-      session.innerText = ses.session;
-    }
-  },2000);
-}
-
-function copy(id){
-  navigator.clipboard.writeText(document.getElementById(id).innerText);
-  alert("Copied!");
+  pairCode.innerText=d.code || d.error;
 }
 </script>
 
