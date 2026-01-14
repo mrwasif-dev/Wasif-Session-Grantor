@@ -22,27 +22,25 @@ body{
 
 .hidden{display:none}
 
-.app{width:100%;max-width:420px;padding:25px}
+.app{width:100%;max-width:420px;padding:24px}
 
 .card{
   background:rgba(255,255,255,.08);
-  border-radius:20px;
+  border-radius:22px;
   padding:28px 22px;
   box-shadow:0 20px 40px rgba(0,0,0,.45);
   text-align:center;
+  animation:screen .45s ease;
 }
 
-.slide{
-  animation:slide .45s ease;
-}
-@keyframes slide{
-  from{opacity:0;transform:translateX(40px)}
-  to{opacity:1;transform:translateX(0)}
+@keyframes screen{
+  from{opacity:0;transform:translateY(25px)}
+  to{opacity:1;transform:translateY(0)}
 }
 
 h1{
   margin-bottom:18px;
-  font-size:24px;
+  font-size:23px;
   background:linear-gradient(90deg,#00f2fe,#4facfe,#43e97b);
   -webkit-background-clip:text;
   -webkit-text-fill-color:transparent;
@@ -53,13 +51,13 @@ h1{
   padding:14px;
   margin:10px 0;
   border:none;
-  border-radius:14px;
+  border-radius:16px;
   font-size:16px;
   color:#fff;
   cursor:pointer;
   transition:.3s;
 }
-.btn:hover{transform:scale(1.05)}
+.btn:hover{transform:scale(1.04)}
 .btn:disabled{opacity:.4;cursor:not-allowed}
 
 .b1{background:linear-gradient(90deg,#36d1dc,#5b86e5)}
@@ -67,28 +65,43 @@ h1{
 .b3{background:linear-gradient(90deg,#fc466b,#3f5efb)}
 .b4{background:linear-gradient(90deg,#f7971e,#ffd200);color:#222}
 
-input,select{
-  width:100%;
-  padding:14px;
-  border-radius:12px;
-  border:none;
-  font-size:15px;
-  margin:12px 0;
-}
-
+/* back button */
 .back{
-  width:36px;
-  height:36px;
+  width:34px;
+  height:34px;
   border-radius:50%;
   background:linear-gradient(135deg,#667eea,#764ba2);
   display:flex;
   align-items:center;
   justify-content:center;
   cursor:pointer;
-  margin-bottom:15px;
+  margin-bottom:12px;
+  font-size:16px;
 }
 
-.welcome-screen{
+/* input combo */
+.input-row{
+  display:flex;
+  gap:8px;
+  margin:14px 0;
+}
+.input-row select{
+  width:35%;
+  padding:14px;
+  border-radius:14px;
+  border:none;
+  font-size:14px;
+}
+.input-row input{
+  width:65%;
+  padding:14px;
+  border-radius:14px;
+  border:none;
+  font-size:15px;
+}
+
+/* welcome overlay */
+#welcome{
   position:fixed;
   inset:0;
   display:flex;
@@ -97,40 +110,36 @@ input,select{
   background:linear-gradient(135deg,#000428,#004e92);
   z-index:99;
 }
-
-.welcome-text{
-  font-size:34px;
-  font-weight:700;
-  animation:pulse 2s infinite;
-  background:linear-gradient(90deg,#00f2fe,#43e97b,#fa709a);
-  -webkit-background-clip:text;
-  -webkit-text-fill-color:transparent;
+#welcome h1{
+  font-size:32px;
+  animation:welcome 3s ease;
 }
-@keyframes pulse{
-  0%,100%{transform:scale(1)}
-  50%{transform:scale(1.1)}
+@keyframes welcome{
+  0%{opacity:0;transform:scale(.8)}
+  40%{opacity:1;transform:scale(1.05)}
+  100%{opacity:0;transform:scale(1)}
 }
 </style>
 </head>
 
 <body>
 
-<!-- WELCOME ANIMATION -->
-<div id="welcomeAnim" class="welcome-screen">
-  <div class="welcome-text">Welcome To Wasif MD</div>
+<!-- WELCOME -->
+<div id="welcome">
+  <h1>Welcome To Wasif MD</h1>
 </div>
 
 <div class="app">
 
 <!-- NAME -->
-<div id="nameCard" class="card hidden slide">
+<div id="name" class="card hidden">
   <h1>Enter Your Good Name</h1>
-  <input id="username" placeholder="Your Name">
+  <input id="uname" placeholder="Your Name" style="width:100%;padding:14px;border-radius:14px;border:none">
   <button class="btn b1" onclick="saveName()">Submit</button>
 </div>
 
 <!-- HOME -->
-<div id="home" class="card hidden slide">
+<div id="home" class="card hidden">
   <h1 id="greet"></h1>
   <button class="btn b1" onclick="show('region')">Link With Phone Number</button>
   <button class="btn b2">Link With QR</button>
@@ -138,32 +147,37 @@ input,select{
 </div>
 
 <!-- REGION -->
-<div id="region" class="card hidden slide">
-  <div class="back" onclick="show('home')">←</div>
+<div id="region" class="card hidden">
+  <div class="back" onclick="show('home')">‹</div>
   <h1>Select Your Region</h1>
   <button class="btn b1" onclick="setRegion('pk')">Pakistan</button>
   <button class="btn b2" onclick="setRegion('other')">Other Country</button>
 </div>
 
 <!-- PHONE -->
-<div id="phone" class="card hidden slide">
-  <div class="back" onclick="show('region')">←</div>
+<div id="phone" class="card hidden">
+  <div class="back" onclick="show('region')">‹</div>
   <h1>Enter WhatsApp Number</h1>
-  <input id="phoneInput" placeholder="+92XXXXXXXXXX" oninput="validatePhone()">
-  <button id="pairBtn" class="btn b2" disabled>Request Pair</button>
+
+  <div class="input-row">
+    <select id="code"></select>
+    <input id="number" placeholder="Number" oninput="validate()">
+  </div>
+
+  <button id="pair" class="btn b2" disabled>Request Pair</button>
 </div>
 
 <!-- HELP -->
-<div id="help" class="card hidden slide">
-  <div class="back" onclick="show('home')">←</div>
+<div id="help" class="card hidden">
+  <div class="back" onclick="show('home')">‹</div>
   <h1>Welcome To Help Section</h1>
   <button class="btn b1" onclick="show('admin')">Contact Admin</button>
   <button class="btn b4" onclick="openOwner()">Owner Channel</button>
 </div>
 
 <!-- ADMIN -->
-<div id="admin" class="card hidden slide">
-  <div class="back" onclick="show('help')">←</div>
+<div id="admin" class="card hidden">
+  <div class="back" onclick="show('help')">‹</div>
   <h1>Admins</h1>
   <button class="btn b1" onclick="openWasif()">Wasif</button>
   <button class="btn b2" onclick="openMuzammil()">Muzammil</button>
@@ -172,19 +186,15 @@ input,select{
 </div>
 
 <script>
-let region="pk";
-
 setTimeout(()=>{
-  document.getElementById("welcomeAnim").style.display="none";
-  document.getElementById("nameCard").classList.remove("hidden");
-},5000);
+  document.getElementById("welcome").style.display="none";
+  document.getElementById("name").classList.remove("hidden");
+},3000);
 
 function saveName(){
-  const n=document.getElementById("username").value.trim();
-  if(!n) return;
-  document.getElementById("nameCard").classList.add("hidden");
-  document.getElementById("greet").innerText=
-    `Dear ${n}\nWelcome To Wasif MD Session Generator`;
+  const n=document.getElementById("uname").value.trim();
+  if(!n)return;
+  document.getElementById("greet").innerText=`Dear ${n}\nWelcome To Wasif MD Session Generator`;
   show("home");
 }
 
@@ -194,32 +204,25 @@ function show(id){
 }
 
 function setRegion(r){
-  region=r;
-  const input=document.getElementById("phoneInput");
-  input.value="";
-  input.placeholder = r==="pk" ? "+92XXXXXXXXXX" : "+CountryCodeNumber";
+  const code=document.getElementById("code");
+  code.innerHTML = r==="pk"
+    ? `<option value="+92">+92</option>`
+    : `<option>+92</option><option>+91</option><option>+44</option><option>+1</option><option>+971</option>`;
+  document.getElementById("number").value="";
+  document.getElementById("pair").disabled=true;
   show("phone");
 }
 
-function validatePhone(){
-  const v=document.getElementById("phoneInput").value;
-  const btn=document.getElementById("pairBtn");
-  if(region==="pk"){
-    btn.disabled = !/^\+92\d{10}$/.test(v);
-  }else{
-    btn.disabled = !/^\+\d{8,15}$/.test(v);
-  }
+function validate(){
+  const code=document.getElementById("code").value;
+  const num=document.getElementById("number").value;
+  document.getElementById("pair").disabled =
+    code==="+92" ? !/^\d{10}$/.test(num) : !/^\d{7,15}$/.test(num);
 }
 
-function openOwner(){
-  window.open("https://whatsapp.com/channel/0029Vasn4ipCBtxCxfJqgV3S","_blank");
-}
-function openWasif(){
-  window.open("https://wa.me/923039107958","_blank");
-}
-function openMuzammil(){
-  window.open("https://wa.me/923053956147","_blank");
-}
+function openOwner(){window.open("https://whatsapp.com/channel/0029Vasn4ipCBtxCxfJqgV3S")}
+function openWasif(){window.open("https://wa.me/923039107958")}
+function openMuzammil(){window.open("https://wa.me/923053956147")}
 </script>
 
 </body>
