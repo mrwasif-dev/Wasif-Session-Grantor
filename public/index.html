@@ -5,168 +5,170 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Wasif MD Session Generator</title>
 
-<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;500;700&family=Playfair+Display:wght@600&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&family=Playfair+Display:wght@600&display=swap" rel="stylesheet">
 
 <style>
-*{margin:0;padding:0;box-sizing:border-box;font-family:Poppins,sans-serif}
+*{margin:0;padding:0;box-sizing:border-box;font-family:Poppins}
 body{
   min-height:100vh;
   background:linear-gradient(135deg,#0f2027,#203a43,#2c5364);
-  display:flex;align-items:center;justify-content:center;color:#fff;overflow:hidden
+  display:flex;justify-content:center;align-items:center;color:#fff
 }
 .hidden{display:none}
-.app{width:100%;max-width:420px;padding:24px}
+.app{width:100%;max-width:420px;padding:20px}
 
 .card{
   background:rgba(255,255,255,.08);
-  border-radius:22px;
-  padding:28px 22px;
-  box-shadow:0 20px 40px rgba(0,0,0,.45);
-  text-align:center;
-  animation:fade .45s ease
+  padding:22px;
+  border-radius:20px;
+  box-shadow:0 20px 40px rgba(0,0,0,.4);
+  animation:fade .4s ease;
+  text-align:center
 }
-@keyframes fade{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:translateY(0)}}
+@keyframes fade{from{opacity:0;transform:translateY(20px)}to{opacity:1}}
 
 h1{
-  margin-bottom:14px;
   font-size:22px;
   background:linear-gradient(90deg,#00f2fe,#4facfe,#43e97b);
-  -webkit-background-clip:text;-webkit-text-fill-color:transparent
+  -webkit-background-clip:text;
+  -webkit-text-fill-color:transparent;
+  margin-bottom:14px
 }
-.btn{
-  width:100%;padding:14px;margin:10px 0;border:none;border-radius:16px;
-  font-size:16px;color:#fff;cursor:pointer;transition:.3s
-}
-.btn:hover{transform:scale(1.04)}
-.btn:disabled{opacity:.4;cursor:not-allowed}
 
+.btn{
+  width:100%;padding:14px;margin:8px 0;
+  border:none;border-radius:14px;
+  font-size:16px;color:#fff;cursor:pointer
+}
 .b1{background:linear-gradient(90deg,#36d1dc,#5b86e5)}
 .b2{background:linear-gradient(90deg,#11998e,#38ef7d)}
 .b3{background:linear-gradient(90deg,#fc466b,#3f5efb)}
+.btn:disabled{opacity:.4}
 
 .back{
-  width:34px;height:34px;border-radius:50%;
+  width:32px;height:32px;border-radius:50%;
   background:linear-gradient(135deg,#667eea,#764ba2);
   display:flex;align-items:center;justify-content:center;
-  cursor:pointer;margin-bottom:12px
+  cursor:pointer;margin-bottom:10px
 }
 
 input,select{
-  width:100%;padding:14px;border-radius:14px;border:none;font-size:15px;margin:8px 0
+  padding:12px;border-radius:12px;border:none;font-size:15px
 }
-.error{color:#ff6b6b;font-size:13px}
+.row{
+  display:flex;gap:8px
+}
+.row select{width:35%}
+.row input{width:65%}
 
-#welcome{
-  position:fixed;inset:0;display:flex;align-items:center;justify-content:center;
-  background:linear-gradient(135deg,#000428,#004e92);z-index:99
+.loader{
+  width:40px;height:40px;border:4px solid #fff;
+  border-top:4px solid transparent;
+  border-radius:50%;animation:spin 1s linear infinite;
+  margin:14px auto
 }
-#welcome h1{
-  font-size:30px;
-  animation:welcome 3s ease;
-}
-@keyframes welcome{
-  0%{opacity:0;transform:scale(.8)}
-  50%{opacity:1;transform:scale(1.05)}
-  100%{opacity:0}
-}
+@keyframes spin{to{transform:rotate(360deg)}}
 
 .nameHighlight{
   font-family:'Playfair Display',serif;
-  font-size:28px;color:#ffd200;margin:8px 0
+  font-size:26px;color:#ffd200;margin:6px 0
 }
 </style>
 </head>
 
 <body>
-
-<div id="welcome">
-  <h1>Welcome To Wasif MD Session Section</h1>
-</div>
-
 <div class="app">
 
 <!-- NAME -->
-<div id="nameCard" class="card hidden">
+<div id="name" class="card">
   <h1>Enter Your Good Name</h1>
-  <input id="fname" placeholder="First Name (Example: Muzammil)">
+  <input id="fname" placeholder="First Name (Required)">
   <input id="lname" placeholder="Second Name (Optional)">
-  <div id="nameErr" class="error"></div>
-  <button id="nameBtn" class="btn b1" disabled>Submit</button>
+  <div id="nErr" style="color:#ff6b6b;font-size:13px"></div>
+  <button id="nBtn" class="btn b1" disabled>Submit</button>
 </div>
 
 <!-- HOME -->
 <div id="home" class="card hidden">
   <div>Dear</div>
-  <div id="userName" class="nameHighlight"></div>
+  <div id="uname" class="nameHighlight"></div>
   <div>Welcome To Wasif MD Session Generator</div>
-  <button class="btn b1" onclick="show('region')">Link With Phone Number</button>
-  <button class="btn b2" onclick="show('qr')">Link With QR</button>
+  <button class="btn b1" onclick="show('pair')">Link With Phone Number</button>
+  <button class="btn b2" onclick="show('help')">Help</button>
 </div>
 
-<!-- REGION -->
-<div id="region" class="card hidden">
+<!-- PAIR -->
+<div id="pair" class="card hidden">
   <div class="back" onclick="show('home')">‹</div>
-  <h1>Select Your Region</h1>
-  <button class="btn b1" onclick="setRegion('pk')">Pakistan</button>
-  <button class="btn b2" onclick="setRegion('other')">Other Country</button>
-</div>
+  <h1>Pair WhatsApp</h1>
 
-<!-- PHONE -->
-<div id="phone" class="card hidden">
-  <div class="back" onclick="show('region')">‹</div>
-  <h1>Enter WhatsApp Number</h1>
-  <select id="code"></select>
-  <input id="number" placeholder="Number">
-  <button id="pairBtn" class="btn b2" disabled>Request Pair</button>
-
-  <div id="pairResult" class="hidden">
-    <input value="ABCD-1234" readonly>
-    <button class="btn b3" onclick="copy(this)">Copy Code</button>
-    <input value="SESSION_ID_EXAMPLE_98765" readonly>
-    <button class="btn b1" onclick="copy(this)">Copy Session</button>
+  <div class="row">
+    <select id="cc">
+      <option value="+92">🇵🇰 +92</option>
+      <option value="+1">🇺🇸 +1</option>
+      <option value="+44">🇬🇧 +44</option>
+    </select>
+    <input id="num" placeholder="3XXXXXXXXX">
   </div>
+
+  <button class="btn b2" onclick="requestPair()">Request A Pair</button>
 </div>
 
-<!-- QR -->
-<div id="qr" class="card hidden">
+<!-- CODE -->
+<div id="codeBox" class="card hidden">
+  <h1>Enter This Code In WhatsApp</h1>
+  <input id="pairCode" readonly>
+  <button class="btn b3" onclick="copyCode()">Copy Code</button>
+</div>
+
+<!-- LOGIN -->
+<div id="login" class="card hidden">
+  <h1>Device Logging</h1>
+  <div class="loader"></div>
+  <div>Please wait…</div>
+</div>
+
+<!-- SESSION -->
+<div id="session" class="card hidden">
+  <h1>Session ID</h1>
+  <input id="sid" readonly>
+</div>
+
+<!-- HELP -->
+<div id="help" class="card hidden">
   <div class="back" onclick="show('home')">‹</div>
-  <h1>Scan QR Code</h1>
-  <img src="https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=WasifMD" style="margin-top:10px">
+  <h1>Welcome To Help Section</h1>
+  <button class="btn b1" onclick="show('admin')">Contact Admin</button>
+  <button class="btn b2" onclick="window.open('https://whatsapp.com/channel/0029Vasn4ipCBtxCxfJqgV3S')">Owner Channel</button>
+</div>
+
+<!-- ADMIN -->
+<div id="admin" class="card hidden">
+  <div class="back" onclick="show('help')">‹</div>
+  <h1>Contact Admin</h1>
+  <button class="btn b1" onclick="wa('+923039107958')">Wasif</button>
+  <button class="btn b2" onclick="wa('+923053956147')">Muzammil</button>
 </div>
 
 </div>
 
 <script>
-setTimeout(()=>{
-  document.getElementById("welcome").style.display="none";
-  document.getElementById("nameCard").classList.remove("hidden");
-},3000);
-
-const fname=document.getElementById("fname");
+const fname=fnameInput=document.getElementById("fname");
 const lname=document.getElementById("lname");
-const err=document.getElementById("nameErr");
-const btn=document.getElementById("nameBtn");
+const err=document.getElementById("nErr");
+const btn=document.getElementById("nBtn");
 
-function validName(v){
-  return /^[A-Z][a-z]+$/.test(v);
-}
+const valid=n=>/^[A-Z][a-z]+$/.test(n);
 
 fname.oninput=lname.oninput=()=>{
-  if(!fname.value){
-    err.textContent="First Name is required";
-    btn.disabled=true;return;
-  }
-  if(!validName(fname.value) || (lname.value && !validName(lname.value))){
-    err.textContent="Use format: Muzammil (First capital only)";
-    btn.disabled=true;return;
-  }
-  err.textContent="";
-  btn.disabled=false;
+  if(!fname.value) return err.textContent="First Name required",btn.disabled=true;
+  if(!valid(fname.value)|| (lname.value && !valid(lname.value)))
+    return err.textContent="Format: Muzammil",btn.disabled=true;
+  err.textContent="";btn.disabled=false;
 };
 
 btn.onclick=()=>{
-  document.getElementById("userName").innerText =
-    fname.value + (lname.value?" "+lname.value:"");
+  uname.innerText=fname.value+(lname.value?" "+lname.value:"");
   show("home");
 };
 
@@ -175,19 +177,29 @@ function show(id){
   document.getElementById(id).classList.remove("hidden");
 }
 
-function setRegion(r){
-  document.getElementById("code").innerHTML =
-    r==="pk" ? `<option>+92</option>` : `<option>+92</option><option>+1</option><option>+44</option>`;
-  document.getElementById("pairBtn").disabled=false;
-  show("phone");
+function wa(n){window.open("https://wa.me/"+n.replace("+",""))}
+
+async function requestPair(){
+  const phone=cc.value+num.value;
+  show("codeBox");
+
+  // 🔴 REAL BACKEND CALL
+  const r=await fetch("/pair",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({phone})});
+  const d=await r.json();
+
+  pairCode.value=d.code;
+
+  setTimeout(()=>{
+    show("login");
+    setTimeout(()=>{
+      show("session");
+      sid.value=d.session;
+    },4000);
+  },8000);
 }
 
-document.getElementById("pairBtn").onclick=()=>{
-  document.getElementById("pairResult").classList.remove("hidden");
-};
-
-function copy(btn){
-  navigator.clipboard.writeText(btn.previousElementSibling.value);
+function copyCode(){
+  navigator.clipboard.writeText(pairCode.value);
 }
 </script>
 
