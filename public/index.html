@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>Wasif MD Session Generator</title>
+<style>
+body {
+  background: linear-gradient(135deg,#667eea,#764ba2);
+  font-family: Arial;
+  color: #fff;
+  text-align: center;
+}
+.box {
+  background:#1e1e2f;
+  width: 90%;
+  max-width: 420px;
+  margin: 40px auto;
+  padding: 25px;
+  border-radius: 15px;
+}
+button {
+  width: 100%;
+  padding: 12px;
+  margin: 8px 0;
+  border: none;
+  border-radius: 10px;
+  font-size: 16px;
+  cursor: pointer;
+}
+.btn1 {background:#4CAF50;color:#fff;}
+.btn2 {background:#2196F3;color:#fff;}
+.btn3 {background:#FF9800;color:#fff;}
+input {
+  width: 100%;
+  padding: 12px;
+  border-radius: 10px;
+  border: none;
+  margin: 10px 0;
+}
+pre {
+  background:#000;
+  padding:10px;
+  border-radius:10px;
+  overflow:auto;
+}
+.copy {
+  background:#9C27B0;
+  color:#fff;
+}
+img {width:100%; border-radius:10px;}
+a {color:#fff;}
+</style>
+</head>
+
+<body>
+
+<div class="box" id="home">
+  <h2>WhatsApp Session Generator</h2>
+  <button class="btn1" onclick="showPhone()">Link With Phone Number</button>
+  <button class="btn2" onclick="showQR()">Link With QR</button>
+  <button class="btn3" onclick="openHelp()">Help</button>
+</div>
+
+<div class="box" id="qrBox" style="display:none">
+  <h3>Scan QR Code</h3>
+  <img id="qrImg">
+</div>
+
+<div class="box" id="phoneBox" style="display:none">
+  <h3>Link With Phone</h3>
+  <input id="phone" placeholder="92XXXXXXXXXX">
+  <button class="btn1" onclick="pair()">Request Pair</button>
+  <pre id="pairCode"></pre>
+  <button class="copy" onclick="copy('pairCode')">Copy Code</button>
+</div>
+
+<div class="box" id="statusBox" style="display:none">
+  <h3 id="loginStatus">Logging in...</h3>
+  <pre id="session"></pre>
+  <button class="copy" onclick="copy('session')">Copy Session</button>
+</div>
+
+<script>
+function showPhone(){
+  home.style.display="none";
+  phoneBox.style.display="block";
+}
+function showQR(){
+  home.style.display="none";
+  qrBox.style.display="block";
+  loadQR();
+}
+function openHelp(){
+  window.open("PUT_YOUR_HELP_LINK_HERE","_blank");
+}
+
+async function loadQR(){
+  const r = await fetch("/qr");
+  const d = await r.json();
+  if(d.qr) qrImg.src = d.qr;
+}
+
+async function pair(){
+  const phone = document.getElementById("phone").value;
+  const r = await fetch("/pair",{
+    method:"POST",
+    headers:{"Content-Type":"application/json"},
+    body:JSON.stringify({phone})
+  });
+  const d = await r.json();
+  pairCode.innerText = d.code;
+  checkLogin();
+}
+
+async function checkLogin(){
+  statusBox.style.display="block";
+  setInterval(async()=>{
+    const s = await fetch("/status").then(r=>r.json());
+    loginStatus.innerText = s.status;
+    if(s.status==="Logged In"){
+      const ses = await fetch("/session").then(r=>r.json());
+      session.innerText = ses.session;
+    }
+  },2000);
+}
+
+function copy(id){
+  navigator.clipboard.writeText(document.getElementById(id).innerText);
+  alert("Copied!");
+}
+</script>
+
+</body>
+</html>
