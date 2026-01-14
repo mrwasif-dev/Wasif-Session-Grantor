@@ -1,64 +1,69 @@
-import express from "express"
-import cors from "cors"
-import makeWASocket, {
-  useMultiFileAuthState
-} from "@whiskeysockets/baileys"
-import pino from "pino"
+const express = require("express");
+const cors = require("cors");
+const {
+  makeWASocket,
+  useMultiFileAuthState,
+  DisconnectReason
+} = require("@whiskeysockets/baileys");
 
-const app = express()
-app.use(cors())
-app.use(express.json())
+const app = express();
+app.use(cors());
+app.use(express.json());
 
-let sock
-let sessionId = null
+let sock;
+let pairingInProgress = false;
 
-async function startWA () {
-  const { state, saveCreds } =
-    await useMultiFileAuthState("session")
+async function startSock(){
+  const { state, saveCreds } = await useMultiFileAuthState("session");
 
   sock = makeWASocket({
-    logger: pino({ level: "silent" }),
     auth: state,
     printQRInTerminal: false
-  })
+  });
 
-  sock.ev.on("creds.update", saveCreds)
+  sock.ev.on("creds.update", saveCreds);
 
-  sock.ev.on("connection.update", (update) => {
-    if (update.connection === "open") {
-      sessionId = Buffer
-        .from(JSON.stringify(state.creds))
-        .toString("base64")
-      console.log("✅ WhatsApp Connected")
+  sock.ev.on("connection.update", ({ connection, lastDisconnect }) => {
+    if(connection === "close"){
+      const shouldReconnect =
+        lastDisconnect?.error?.output?.statusCode !== DisconnectReason.loggedOut;
+      if(shouldReconnect) startSock();
     }
-  })
+    if(connection === "open"){
+      console.log("✅ WhatsApp Connected");
+    }
+  });
 }
-startWA()
 
-// 🔗 Pair Request
-app.post("/pair", async (req, res) => {
-  try {
-    let { number } = req.body
-    number = number.replace(/\D/g, "")
+startSock();
 
-    const code = await sock.requestPairingCode(number)
+// 🔑 PAIR ENDPOINT
+app.post("/pair", async (req,res)=>{
+  try{
+    if(pairingInProgress)
+      return res.json({ error: "Pairing already running" });
 
-    res.json({
-      code: code.match(/.{1,4}/g).join("-")
-    })
-  } catch (e) {
-    res.json({ error: "Pairing failed" })
+    const number = req.body.number;
+    if(!number) return res.json({ error:"Number required" });
+
+    pairingInProgress = true;
+
+    const code = await sock.requestPairingCode(number);
+    pairingInProgress = false;
+
+    res.json({ code });
+
+  }catch(err){
+    pairingInProgress = false;
+    res.json({ error: "Failed to pair" });
   }
-})
+});
 
-// 📦 Session
-app.get("/session", (req, res) => {
-  if (!sessionId)
-    return res.json({ error: "Not ready" })
+app.get("/", (req,res)=>{
+  res.send("Wasif MD Session Generator Running");
+});
 
-  res.json({ session: sessionId })
-})
-
-app.listen(process.env.PORT || 3000, () =>
-  console.log("🚀 Server Started")
-)
+const PORT = process.env.PORT || 3000;
+app.listen(PORT, ()=>{
+  console.log("🚀 Server running on port", PORT);
+});
