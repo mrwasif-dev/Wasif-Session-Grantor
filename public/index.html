@@ -73,13 +73,18 @@ button:disabled{opacity:.4}
 .row{display:flex;gap:8px}
 .code{flex:0 0 30%}
 .num{flex:1}
+
+/* 🔥 SESSION SMALL BOX */
 .codebox{
   margin-top:12px;
   background:#0008;
-  padding:12px;
+  padding:10px;
   border-radius:12px;
-  font-size:14px;
-  word-break:break-all;
+  font-size:12px;
+  max-height:46px;
+  overflow:hidden;
+  white-space:nowrap;
+  text-overflow:ellipsis;
 }
 </style>
 </head>
@@ -130,24 +135,25 @@ button:disabled{opacity:.4}
   <div class="card">
     <button class="btnBack" onclick="show('region')">Back</button>
     <h2>Enter Phone Number</h2>
+
     <div class="row">
       <select class="in3 code" id="code"></select>
       <input class="in4 num" id="number" placeholder="Phone Number">
     </div>
+
     <button class="btn1" id="pairBtn" disabled onclick="realPair()">Request A Pair</button>
+
     <div id="pairBox" style="display:none">
       <div class="codebox" id="pairCode"></div>
       <button class="btn2" onclick="copyCode()">Copy Code</button>
     </div>
-  </div>
-</div>
 
-<!-- SESSION -->
-<div class="screen" id="session">
-  <div class="card">
-    <h2>SESSION ID</h2>
-    <div class="codebox" id="sessionText">Coding in progress...</div>
-    <button class="btn2" id="copySession" style="display:none" onclick="copySession()">Copy Session</button>
+    <!-- 🔐 SESSION (SAME PAGE) -->
+    <div id="sessionBox" style="display:none">
+      <div class="codebox" id="sessionText">Coding in progress...</div>
+      <button class="btn2" onclick="copySession()">Copy Session</button>
+    </div>
+
   </div>
 </div>
 
@@ -175,6 +181,8 @@ const number=document.getElementById('number');
 const pairBtn=document.getElementById('pairBtn');
 const pairBox=document.getElementById('pairBox');
 const pairCode=document.getElementById('pairCode');
+const sessionBox=document.getElementById('sessionBox');
+const sessionText=document.getElementById('sessionText');
 
 function openPhone(type){
   code.innerHTML= type==='pk'
@@ -201,7 +209,6 @@ async function realPair(){
 
 function copyCode(){
   navigator.clipboard.writeText(pairCode.innerText);
-  show('session');
   pollSession();
 }
 
@@ -210,17 +217,15 @@ async function pollSession(){
     const r=await fetch('/session');
     const d=await r.json();
     if(d.session){
-      document.getElementById('sessionText').innerText=d.session;
-      document.getElementById('copySession').style.display='block';
+      sessionText.innerText=d.session;
+      sessionBox.style.display='block';
       clearInterval(i);
     }
   },3000);
 }
 
 function copySession(){
-  navigator.clipboard.writeText(
-    document.getElementById('sessionText').innerText
-  );
+  navigator.clipboard.writeText(sessionText.innerText);
 }
 </script>
 
