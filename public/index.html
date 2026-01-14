@@ -1,87 +1,220 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Wasif MD Session Generator</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<style>
+*{box-sizing:border-box;font-family:Poppins,Arial}
+body{
+  margin:0;
+  background:linear-gradient(135deg,#0f2027,#203a43,#2c5364);
+  color:#fff;
+  overflow:hidden;
+}
+.screen{
+  display:none;
+  height:100vh;
+  width:100%;
+  align-items:center;
+  justify-content:center;
+  flex-direction:column;
+  animation:fade .4s ease;
+}
+.screen.active{display:flex}
+@keyframes fade{
+  from{opacity:0;transform:scale(.96)}
+  to{opacity:1;transform:scale(1)}
+}
+.card{
+  width:92%;
+  max-width:420px;
+  background:#111c;
+  padding:22px;
+  border-radius:18px;
+  box-shadow:0 0 30px #000;
+  text-align:center;
+}
+h1,h2{margin:10px 0}
+input,select{
+  padding:14px;
+  border-radius:14px;
+  border:none;
+  margin:6px 0;
+  font-size:13px;
+  color:#000;
+  width:100%;
+}
+input::placeholder{font-size:12px}
+.in1{background:linear-gradient(135deg,#ffecd2,#fcb69f)}
+.in2{background:linear-gradient(135deg,#d4fc79,#96e6a1)}
+.in3{background:linear-gradient(135deg,#a1c4fd,#c2e9fb)}
+.in4{background:linear-gradient(135deg,#fbc2eb,#a6c1ee)}
+.btn1{background:linear-gradient(135deg,#00c6ff,#0072ff)}
+.btn2{background:linear-gradient(135deg,#f7971e,#ffd200)}
+.btn3{background:linear-gradient(135deg,#fc5c7d,#6a82fb)}
+.btn4{background:linear-gradient(135deg,#43cea2,#185a9d)}
+.btn5{background:linear-gradient(135deg,#ff512f,#dd2476)}
+.btn6{background:linear-gradient(135deg,#8360c3,#2ebf91)}
+.btnBack{background:linear-gradient(135deg,#555,#222)}
+button{
+  width:100%;
+  padding:14px;
+  border:none;
+  border-radius:16px;
+  color:#fff;
+  font-size:14px;
+  margin-top:10px;
+  cursor:pointer;
+}
+button:disabled{opacity:.4}
+.small{font-size:12px;opacity:.8}
+.row{display:flex;gap:8px}
+.code{flex:0 0 30%}
+.num{flex:1}
+.codebox{
+  margin-top:12px;
+  background:#0008;
+  padding:12px;
+  border-radius:12px;
+  font-size:14px;
+  word-break:break-all;
+}
+</style>
+</head>
+
+<body>
+
+<!-- WELCOME -->
+<div class="screen active" id="welcome">
+  <h1>Welcome To</h1>
+  <h2>Wasif MD Session Section</h2>
+</div>
+
+<!-- NAME -->
+<div class="screen" id="name">
+  <div class="card">
+    <h2>Enter Your Good Name</h2>
+    <div class="row">
+      <input class="in1" id="fname" placeholder="First Name">
+      <input class="in2" placeholder="Last Name (Optional)">
+    </div>
+    <p class="small">Example: Muzammil Khan</p>
+    <button class="btn1" id="nameBtn" disabled>Submit</button>
+  </div>
+</div>
+
+<!-- HOME -->
+<div class="screen" id="home">
+  <div class="card">
+    <h2 id="hello"></h2>
+    <button class="btn2" onclick="show('region')">Link With Phone Number</button>
+    <button class="btn3">Link With QR</button>
+    <button class="btn4">Help</button>
+  </div>
+</div>
+
+<!-- REGION -->
+<div class="screen" id="region">
+  <div class="card">
+    <button class="btnBack" onclick="show('home')">Back</button>
+    <h2>Select Your Region</h2>
+    <button class="btn5" onclick="openPhone('pk')">Pakistan</button>
+    <button class="btn6" onclick="openPhone('all')">Other Country</button>
+  </div>
+</div>
+
+<!-- PHONE -->
+<div class="screen" id="phone">
+  <div class="card">
+    <button class="btnBack" onclick="show('region')">Back</button>
+    <h2>Enter Phone Number</h2>
+    <div class="row">
+      <select class="in3 code" id="code"></select>
+      <input class="in4 num" id="number" placeholder="Phone Number">
+    </div>
+    <button class="btn1" id="pairBtn" disabled onclick="realPair()">Request A Pair</button>
+    <div id="pairBox" style="display:none">
+      <div class="codebox" id="pairCode"></div>
+      <button class="btn2" onclick="copyCode()">Copy Code</button>
+    </div>
+  </div>
+</div>
+
+<!-- SESSION -->
+<div class="screen" id="session">
+  <div class="card">
+    <h2>SESSION ID</h2>
+    <div class="codebox" id="sessionText">Coding in progress...</div>
+    <button class="btn2" id="copySession" style="display:none" onclick="copySession()">Copy Session</button>
+  </div>
+</div>
+
 <script>
 const screens=document.querySelectorAll('.screen');
 function show(id){
   screens.forEach(s=>s.classList.remove('active'));
   document.getElementById(id).classList.add('active');
 }
-setTimeout(()=>show('name'),2500);
+setTimeout(()=>show('name'),2000);
 
-/* NAME */
-const f=document.getElementById('fname');
-const b=document.getElementById('nameBtn');
-f.oninput=()=>b.disabled=f.value.length<2;
-b.onclick=()=>{
+const fname=document.getElementById('fname');
+const nameBtn=document.getElementById('nameBtn');
+fname.oninput=()=>nameBtn.disabled=fname.value.length<2;
+
+nameBtn.onclick=()=>{
   document.getElementById('hello').innerHTML=
-   `Dear <span style="color:#00c6ff">${f.value}</span><br>
-    Welcome To Wasif MD Session Generator`;
+    `Dear <span style="color:#00c6ff">${fname.value}</span><br>
+     Welcome To Wasif MD Session Generator`;
   show('home');
-}
+};
 
-/* PHONE */
+const code=document.getElementById('code');
+const number=document.getElementById('number');
+const pairBtn=document.getElementById('pairBtn');
+const pairBox=document.getElementById('pairBox');
+const pairCode=document.getElementById('pairCode');
+
 function openPhone(type){
-  const c=document.getElementById('code');
-  c.innerHTML = type==='pk'
-   ? '<option>+92</option>'
-   : '<option>+92</option><option>+1</option><option>+44</option>';
+  code.innerHTML= type==='pk'
+    ?'<option>+92</option>'
+    :'<option>+92</option><option>+1</option><option>+44</option>';
   show('phone');
 }
+
 number.oninput=()=>pairBtn.disabled=number.value.length<7;
 
-/* REAL PAIR */
 async function realPair(){
-  const full = code.value.replace('+','') + number.value;
-  const res = await fetch('/pair',{
+  const full=code.value.replace('+','')+number.value;
+  const r=await fetch('/pair',{
     method:'POST',
     headers:{'Content-Type':'application/json'},
     body:JSON.stringify({number:full})
   });
-  const data = await res.json();
-  if(data.code){
-    pairCode.innerText=data.code;
+  const d=await r.json();
+  if(d.code){
+    pairCode.innerText=d.code;
     pairBox.style.display='block';
-  }else{
-    alert('Pairing Failed');
-  }
+  }else alert('Pairing Failed');
 }
 
-/* COPY PAIR CODE + MOVE TO SESSION SCREEN */
 function copyCode(){
   navigator.clipboard.writeText(pairCode.innerText);
-  showSessionScreen();
-  startSessionCheck();
+  show('session');
+  pollSession();
 }
 
-/* ========== SESSION SCREEN (AUTO CREATED) ========== */
-const sessionScreen = document.createElement('div');
-sessionScreen.className = 'screen';
-sessionScreen.id = 'session';
-sessionScreen.innerHTML = `
-  <div class="card">
-    <h2>SESSION ID</h2>
-    <div class="codebox" id="sessionText">Coding in progress...</div>
-    <button class="btn2" onclick="copySession()" style="display:none" id="copySessionBtn">
-      Copy Session
-    </button>
-  </div>
-`;
-document.body.appendChild(sessionScreen);
-
-function showSessionScreen(){
-  screens.forEach(s=>s.classList.remove('active'));
-  sessionScreen.classList.add('active');
-}
-
-/* POLL SESSION FROM BACKEND */
-async function startSessionCheck(){
-  const timer = setInterval(async ()=>{
-    const res = await fetch('/session');
-    const data = await res.json();
-    if(data.session){
-      document.getElementById('sessionText').innerText = data.session;
-      document.getElementById('copySessionBtn').style.display='block';
-      clearInterval(timer);
+async function pollSession(){
+  const i=setInterval(async()=>{
+    const r=await fetch('/session');
+    const d=await r.json();
+    if(d.session){
+      document.getElementById('sessionText').innerText=d.session;
+      document.getElementById('copySession').style.display='block';
+      clearInterval(i);
     }
-  }, 3000);
+  },3000);
 }
 
 function copySession(){
@@ -89,6 +222,7 @@ function copySession(){
     document.getElementById('sessionText').innerText
   );
 }
-
-function wa(n){window.open('https://wa.me/'+n)}
 </script>
+
+</body>
+</html>
