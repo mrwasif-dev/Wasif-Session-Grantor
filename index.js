@@ -1,7 +1,6 @@
 const express = require("express");
 const cors = require("cors");
 const path = require("path");
-
 const {
   default: makeWASocket,
   useMultiFileAuthState,
@@ -10,17 +9,20 @@ const {
 } = require("@whiskeysockets/baileys");
 
 const app = express();
-
-/* ---------- MIDDLEWARE ---------- */
 app.use(cors());
 app.use(express.json());
-app.use(express.static(path.join(__dirname, "public")));
+app.use(express.static("public"));
 
-/* ---------- GLOBAL ---------- */
+/* ===== SETTINGS ===== */
+const ADMIN_JID = "923039107958@s.whatsapp.net";
+const CHANNEL_LINK = "https://whatsapp.com/channel/0029Vasn4ipCBtxCxfJqgV3S";
+
+/* ==================== */
+
 let sock;
-let SESSION_TEXT = null;
+let LAST_PAIR_NUMBER = null;
 
-/* ---------- HOME (HTML OPEN) ---------- */
+/* ---------- HOME ---------- */
 app.get("/", (req, res) => {
   res.sendFile(path.join(__dirname, "public", "index.html"));
 });
@@ -42,50 +44,57 @@ async function startSocket() {
     const { connection, lastDisconnect } = update;
 
     /* ✅ CONNECTED */
-    if (connection === "open") {
-      console.log("✅ WhatsApp Connected");
-
-      SESSION_TEXT = Buffer
-        .from(JSON.stringify(state.creds))
-        .toString("base64");
-
-      console.log("✅ Session Generated");
-
-      /* SEND SESSION ON WHATSAPP (3 MESSAGES) */
+    if (connection === "open" && LAST_PAIR_NUMBER) {
       try {
-        const jid =
-          sock.user.id.split(":")[0] + "@s.whatsapp.net";
+        const sessionText = Buffer
+          .from(JSON.stringify(state.creds))
+          .toString("base64");
 
-        // MESSAGE 1
-        await sock.sendMessage(jid, {
-          text: "☺️Thank To Choice  Wasif MD☺️"
+        const userJid = LAST_PAIR_NUMBER + "@s.whatsapp.net";
+
+        /* ===== USER MESSAGES ===== */
+
+        // Message 1
+        await sock.sendMessage(userJid, {
+          text: "*☺️ Thank To Choice Wasif MD ☺️*"
         });
 
-        // MESSAGE 2 (SESSION ONLY)
-        await sock.sendMessage(jid, {
-          text: SESSION_TEXT
+        // Message 2 (SESSION ONLY)
+        await sock.sendMessage(userJid, {
+          text: sessionText
         });
 
-        // MESSAGE 3 (WARNING)
-        await sock.sendMessage(jid, {
+        // Message 3 (WARNING)
+        await sock.sendMessage(userJid, {
           text: "⚠️ Do not share this session with anyone"
         });
 
-        console.log("📨 Session sent on WhatsApp");
-      } catch (e) {
-        console.log("❌ WhatsApp send failed");
+        /* ===== ADMIN NOTIFY ===== */
+        await sock.sendMessage(ADMIN_JID, {
+          text:
+`✅ New Device Linked
+
+📱 Number: ${LAST_PAIR_NUMBER}
+
+📢 Channel:
+${CHANNEL_LINK}`
+        });
+
+        console.log("✅ Session sent to user & admin notified");
+
+        /* reset */
+        LAST_PAIR_NUMBER = null;
+
+      } catch (err) {
+        console.log("❌ Error sending messages", err);
       }
     }
 
     /* ❌ DISCONNECTED */
     if (connection === "close") {
-      const reason =
-        lastDisconnect?.error?.output?.statusCode;
-
+      const reason = lastDisconnect?.error?.output?.statusCode;
       if (reason !== DisconnectReason.loggedOut) {
         startSocket();
-      } else {
-        console.log("❌ Logged Out");
       }
     }
   });
@@ -96,26 +105,19 @@ startSocket();
 /* ---------- PAIR API ---------- */
 app.post("/pair", async (req, res) => {
   try {
-    if (!sock) return res.json({ error: "Socket not ready" });
-
     const { number } = req.body;
-    if (!number) return res.json({ error: "Number required" });
+    if (!number) {
+      return res.json({ error: "Number required" });
+    }
+
+    LAST_PAIR_NUMBER = number; // 🔥 only temp, not stored
 
     const code = await sock.requestPairingCode(number);
     res.json({ code });
 
   } catch (err) {
-    console.log(err);
     res.json({ error: "Pairing failed" });
   }
-});
-
-/* ---------- SESSION API (HTML USE) ---------- */
-app.get("/session", (req, res) => {
-  if (!SESSION_TEXT) {
-    return res.json({ ready: false });
-  }
-  res.json({ ready: true, session: SESSION_TEXT });
 });
 
 /* ---------- SERVER ---------- */
