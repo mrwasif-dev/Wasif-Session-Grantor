@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Wasif Session Grantor</title>
+<title>Wasif MD Session Generator</title>
 
 <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;500;700&display=swap" rel="stylesheet">
 
@@ -14,30 +14,35 @@ body{
   min-height:100vh;
   background:linear-gradient(135deg,#0f2027,#203a43,#2c5364);
   display:flex;
-  justify-content:center;
   align-items:center;
+  justify-content:center;
   color:#fff;
+  overflow:hidden;
 }
+
+.hidden{display:none}
 
 .app{width:100%;max-width:420px;padding:25px}
 
 .card{
   background:rgba(255,255,255,.08);
   border-radius:20px;
-  padding:30px 22px;
+  padding:28px 22px;
   box-shadow:0 20px 40px rgba(0,0,0,.45);
   text-align:center;
-  animation:fade .4s ease;
 }
 
-@keyframes fade{
-  from{opacity:0;transform:translateY(20px)}
-  to{opacity:1;transform:translateY(0)}
+.slide{
+  animation:slide .45s ease;
+}
+@keyframes slide{
+  from{opacity:0;transform:translateX(40px)}
+  to{opacity:1;transform:translateX(0)}
 }
 
 h1{
-  margin-bottom:22px;
-  font-size:26px;
+  margin-bottom:18px;
+  font-size:24px;
   background:linear-gradient(90deg,#00f2fe,#4facfe,#43e97b);
   -webkit-background-clip:text;
   -webkit-text-fill-color:transparent;
@@ -55,80 +60,110 @@ h1{
   transition:.3s;
 }
 .btn:hover{transform:scale(1.05)}
+.btn:disabled{opacity:.4;cursor:not-allowed}
 
 .b1{background:linear-gradient(90deg,#36d1dc,#5b86e5)}
 .b2{background:linear-gradient(90deg,#11998e,#38ef7d)}
 .b3{background:linear-gradient(90deg,#fc466b,#3f5efb)}
 .b4{background:linear-gradient(90deg,#f7971e,#ffd200);color:#222}
 
-.back-btn{
-  background:linear-gradient(90deg,#667eea,#764ba2);
-  padding:10px;
-  border-radius:12px;
-  margin-bottom:18px;
-  cursor:pointer;
-  box-shadow:0 8px 20px rgba(0,0,0,.4);
-}
-
-.hidden{display:none}
-
 input,select{
   width:100%;
   padding:14px;
   border-radius:12px;
   border:none;
-  margin:12px 0;
   font-size:15px;
+  margin:12px 0;
+}
+
+.back{
+  width:36px;
+  height:36px;
+  border-radius:50%;
+  background:linear-gradient(135deg,#667eea,#764ba2);
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  cursor:pointer;
+  margin-bottom:15px;
+}
+
+.welcome-screen{
+  position:fixed;
+  inset:0;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  background:linear-gradient(135deg,#000428,#004e92);
+  z-index:99;
+}
+
+.welcome-text{
+  font-size:34px;
+  font-weight:700;
+  animation:pulse 2s infinite;
+  background:linear-gradient(90deg,#00f2fe,#43e97b,#fa709a);
+  -webkit-background-clip:text;
+  -webkit-text-fill-color:transparent;
+}
+@keyframes pulse{
+  0%,100%{transform:scale(1)}
+  50%{transform:scale(1.1)}
 }
 </style>
 </head>
 
 <body>
+
+<!-- WELCOME ANIMATION -->
+<div id="welcomeAnim" class="welcome-screen">
+  <div class="welcome-text">Welcome To Wasif MD</div>
+</div>
+
 <div class="app">
 
+<!-- NAME -->
+<div id="nameCard" class="card hidden slide">
+  <h1>Enter Your Good Name</h1>
+  <input id="username" placeholder="Your Name">
+  <button class="btn b1" onclick="saveName()">Submit</button>
+</div>
+
 <!-- HOME -->
-<div id="home" class="card">
-  <h1>Welcome To Wasif MD</h1>
+<div id="home" class="card hidden slide">
+  <h1 id="greet"></h1>
   <button class="btn b1" onclick="show('region')">Link With Phone Number</button>
-  <button class="btn b2" onclick="show('qr')">Link With QR</button>
+  <button class="btn b2">Link With QR</button>
   <button class="btn b3" onclick="show('help')">Help</button>
 </div>
 
 <!-- REGION -->
-<div id="region" class="card hidden">
-  <div class="back-btn" onclick="show('home')">⬅ Back</div>
+<div id="region" class="card hidden slide">
+  <div class="back" onclick="show('home')">←</div>
   <h1>Select Your Region</h1>
-  <button class="btn b1" onclick="openPakistan()">🇵🇰 Pakistan</button>
-  <button class="btn b2" onclick="openOther()">🌍 Other Country</button>
+  <button class="btn b1" onclick="setRegion('pk')">Pakistan</button>
+  <button class="btn b2" onclick="setRegion('other')">Other Country</button>
 </div>
 
 <!-- PHONE -->
-<div id="phone" class="card hidden">
-  <div class="back-btn" onclick="show('region')">⬅ Back</div>
-  <h1>Enter Number</h1>
-  <select id="country"></select>
-  <input placeholder="3039107958">
-  <button class="btn b2">Request Pair</button>
-</div>
-
-<!-- QR -->
-<div id="qr" class="card hidden">
-  <div class="back-btn" onclick="show('home')">⬅ Back</div>
-  <h1>Scan QR</h1>
-  <p>QR will appear here</p>
+<div id="phone" class="card hidden slide">
+  <div class="back" onclick="show('region')">←</div>
+  <h1>Enter WhatsApp Number</h1>
+  <input id="phoneInput" placeholder="+92XXXXXXXXXX" oninput="validatePhone()">
+  <button id="pairBtn" class="btn b2" disabled>Request Pair</button>
 </div>
 
 <!-- HELP -->
-<div id="help" class="card hidden">
-  <div class="back-btn" onclick="show('home')">⬅ Back</div>
-  <h1>Help</h1>
+<div id="help" class="card hidden slide">
+  <div class="back" onclick="show('home')">←</div>
+  <h1>Welcome To Help Section</h1>
   <button class="btn b1" onclick="show('admin')">Contact Admin</button>
   <button class="btn b4" onclick="openOwner()">Owner Channel</button>
 </div>
 
 <!-- ADMIN -->
-<div id="admin" class="card hidden">
-  <div class="back-btn" onclick="show('help')">⬅ Back</div>
+<div id="admin" class="card hidden slide">
+  <div class="back" onclick="show('help')">←</div>
   <h1>Admins</h1>
   <button class="btn b1" onclick="openWasif()">Wasif</button>
   <button class="btn b2" onclick="openMuzammil()">Muzammil</button>
@@ -137,26 +172,43 @@ input,select{
 </div>
 
 <script>
+let region="pk";
+
+setTimeout(()=>{
+  document.getElementById("welcomeAnim").style.display="none";
+  document.getElementById("nameCard").classList.remove("hidden");
+},5000);
+
+function saveName(){
+  const n=document.getElementById("username").value.trim();
+  if(!n) return;
+  document.getElementById("nameCard").classList.add("hidden");
+  document.getElementById("greet").innerText=
+    `Dear ${n}\nWelcome To Wasif MD Session Generator`;
+  show("home");
+}
+
 function show(id){
-  document.querySelectorAll('.card').forEach(c=>c.classList.add('hidden'));
-  document.getElementById(id).classList.remove('hidden');
+  document.querySelectorAll(".card").forEach(c=>c.classList.add("hidden"));
+  document.getElementById(id).classList.remove("hidden");
 }
 
-function openPakistan(){
-  show('phone');
-  document.getElementById('country').innerHTML =
-    `<option value="+92">Pakistan (+92)</option>`;
+function setRegion(r){
+  region=r;
+  const input=document.getElementById("phoneInput");
+  input.value="";
+  input.placeholder = r==="pk" ? "+92XXXXXXXXXX" : "+CountryCodeNumber";
+  show("phone");
 }
 
-function openOther(){
-  show('phone');
-  document.getElementById('country').innerHTML = `
-    <option>Pakistan (+92)</option>
-    <option>India (+91)</option>
-    <option>UK (+44)</option>
-    <option>USA (+1)</option>
-    <option>UAE (+971)</option>
-  `;
+function validatePhone(){
+  const v=document.getElementById("phoneInput").value;
+  const btn=document.getElementById("pairBtn");
+  if(region==="pk"){
+    btn.disabled = !/^\+92\d{10}$/.test(v);
+  }else{
+    btn.disabled = !/^\+\d{8,15}$/.test(v);
+  }
 }
 
 function openOwner(){
