@@ -1,37 +1,49 @@
 const {
   default: makeWASocket,
-  useMultiFileAuthState,
-  DisconnectReason
+  useMultiFileAuthState
 } = require("@whiskeysockets/baileys");
+const express = require("express");
 const fs = require("fs");
+const path = require("path");
 
-async function start() {
+const app = express();
+app.use(express.json());
+app.use(express.static("public"));
+
+let sock;
+
+async function init(phone) {
   const { state, saveCreds } = await useMultiFileAuthState("auth");
 
-  const sock = makeWASocket({
+  sock = makeWASocket({
     auth: state,
-    printQRInTerminal: !process.env.PHONE_NUMBER
+    printQRInTerminal: false
   });
 
   sock.ev.on("creds.update", async () => {
     await saveCreds();
-
-    if (fs.existsSync("./auth/creds.json")) {
-      const data = fs.readFileSync("./auth/creds.json", "utf-8");
-      const sessionText = Buffer.from(data).toString("base64");
-      console.log("\n===== SESSION TEXT =====\n");
-      console.log(sessionText);
-      console.log("\n========================\n");
-    }
   });
 
-  // Phone Number Linking
-  if (process.env.PHONE_NUMBER) {
-    const code = await sock.requestPairingCode(
-      process.env.PHONE_NUMBER.replace(/\D/g, "")
-    );
-    console.log("\nPAIRING CODE:", code, "\n");
+  if (phone) {
+    const code = await sock.requestPairingCode(phone.replace(/\D/g, ""));
+    return { pairingCode: code };
   }
 }
 
-start();
+app.post("/pair", async (req, res) => {
+  const { phone } = req.body;
+  const data = await init(phone);
+  res.json(data);
+});
+
+app.get("/session", (req, res) => {
+  if (!fs.existsSync("./auth/creds.json"))
+    return res.json({ error: "Not linked yet" });
+
+  const raw = fs.readFileSync("./auth/creds.json", "utf-8");
+  const session = Buffer.from(raw).toString("base64");
+  res.json({ session });
+});
+
+const PORT = process.env.PORT || 3000;
+app.listen(PORT, () => console.log("Web Session Generator Running"));
