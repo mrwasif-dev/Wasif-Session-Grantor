@@ -9,13 +9,16 @@
 <style>
 *{box-sizing:border-box;font-family:Poppins,Arial}
 body{margin:0;background:linear-gradient(135deg,#0f2027,#203a43,#2c5364);color:#fff;overflow:hidden;}
-.screen{display:none;height:100vh;width:100%;align-items:center;justify-content:center;flex-direction:column;animation:fade .4s ease;}
-.screen.active{display:flex}
+.screen{display:flex;height:100vh;width:100%;align-items:center;justify-content:center;flex-direction:column;animation:fade .4s ease;}
 @keyframes fade{from{opacity:0;transform:scale(.96)}to{opacity:1;transform:scale(1)}}
 .card{width:92%;max-width:420px;background:#111c;padding:22px;border-radius:18px;box-shadow:0 0 30px #000;text-align:center;}
 h1,h2{margin:10px 0}
-input,select{padding:14px;border-radius:14px;border:none;margin:6px 0;font-size:13px;color:#000;width:100%;}
-input::placeholder{font-size:12px}
+button{width:100%;padding:14px;border:none;border-radius:16px;color:#fff;font-size:14px;margin-top:10px;cursor:pointer;}
+button:disabled{opacity:.4}
+.small{font-size:12px;opacity:.8}
+.row{display:flex;gap:8px}
+.code{flex:0 0 30%}
+.num{flex:1}
 .in1{background:linear-gradient(135deg,#ffecd2,#fcb69f)}
 .in2{background:linear-gradient(135deg,#d4fc79,#96e6a1)}
 .in3{background:linear-gradient(135deg,#a1c4fd,#c2e9fb)}
@@ -27,16 +30,9 @@ input::placeholder{font-size:12px}
 .btn5{background:linear-gradient(135deg,#ff512f,#dd2476)}
 .btn6{background:linear-gradient(135deg,#8360c3,#2ebf91)}
 .btnBack{background:linear-gradient(135deg,#555,#222)}
-button{width:100%;padding:14px;border:none;border-radius:16px;color:#fff;font-size:14px;margin-top:10px;cursor:pointer;}
-button:disabled{opacity:.4}
-.small{font-size:12px;opacity:.8}
-.row{display:flex;gap:8px}
-.code{flex:0 0 30%}
-.num{flex:1}
-.codebox{margin-top:12px;background:#0008;padding:10px;border-radius:12px;font-size:12px;max-height:46px;overflow:hidden;white-space:nowrap;text-overflow:ellipsis;}
 .status-bar{margin-top:10px;font-size:13px;opacity:.8;}
-#qr-container{margin-top:12px;background:#0008;padding:10px;border-radius:12px;text-align:center;}
-#qr-container img{max-width:100%;border-radius:12px;}
+.panel{margin-top:12px;background:#0008;padding:12px;border-radius:12px;text-align:center;display:none;}
+.panel img{max-width:100%;border-radius:12px;}
 .flex-row{display:flex;gap:10px;justify-content:center;margin-top:10px;}
 .flex-row button{width:auto;padding:10px 20px;font-size:13px;}
 </style>
@@ -45,163 +41,117 @@ button:disabled{opacity:.4}
 
 <body>
 
-<!-- WELCOME -->
-<div class="screen active" id="welcome">
-  <h1>Welcome To</h1>
-  <h2>Wasif MD Session Section</h2>
-</div>
-
-<!-- NAME -->
-<div class="screen" id="name">
+<div class="screen">
   <div class="card">
-    <h2>Enter Your Good Name</h2>
-    <div class="row">
-      <input class="in1" id="fname" placeholder="First Name">
-      <input class="in2" placeholder="Last Name (Optional)">
-    </div>
-    <p class="small">Example: Muzammil Khan</p>
-    <button class="btn1" id="nameBtn" disabled>Submit</button>
-  </div>
-</div>
+    <h2 id="hello">Welcome!</h2>
 
-<!-- HOME -->
-<div class="screen" id="home">
-  <div class="card">
-    <h2 id="hello"></h2>
-    <button class="btn2" onclick="show('region')">Link With Phone Number</button>
-    <button class="btn3" onclick="startQR()">Link With QR</button>
-
-    <!-- Connection + Database -->
-    <div class="flex-row">
-      <button class="btn4" onclick="checkStatus()">Refresh Status</button>
-      <button class="btnBack" onclick="disconnect()">Disconnect</button>
+    <div id="link-buttons">
+      <button class="btn2" onclick="showPairPanel()">Link With Phone Number</button>
+      <button class="btn3" onclick="showQRPanel()">Link With QR</button>
     </div>
+
     <div class="status-bar">
       Connection: <span id="conn-status">Checking...</span> | Database: <span id="db-status">Checking...</span>
     </div>
-    <div id="qr-container" style="display:none">
-      <img id="qr-image" src="" alt="QR Code">
-    </div>
-  </div>
-</div>
 
-<!-- REGION -->
-<div class="screen" id="region">
-  <div class="card">
-    <button class="btnBack" onclick="show('home')">Back</button>
-    <h2>Select Your Region</h2>
-    <button class="btn5" onclick="openPhone('pk')">Pakistan</button>
-    <button class="btn6" onclick="openPhone('all')">Other Country</button>
-  </div>
-</div>
-
-<!-- PHONE -->
-<div class="screen" id="phone">
-  <div class="card">
-    <button class="btnBack" onclick="show('region')">Back</button>
-    <h2>Enter Phone Number</h2>
-    <div class="row">
-      <select class="in3 code" id="code"></select>
-      <input class="in4 num" id="number" placeholder="Phone Number">
-    </div>
-    <button class="btn1" id="pairBtn" disabled onclick="realPair()">Request Pairing Code</button>
-
-    <div id="pairBox" style="display:none">
-      <div class="codebox" id="pairCode"></div>
-      <button class="btn2" onclick="copyCode()">Copy Pairing Code</button>
+    <div class="flex-row">
+      <button class="btnBack" onclick="disconnect()">Disconnect</button>
+      <button class="btn4" onclick="checkStatus()">Refresh Status</button>
     </div>
 
-    <div id="sessionBox" style="display:none">
-      <div class="codebox" id="sessionText">Waiting for session...</div>
-      <button class="btn2" onclick="copySession()">Copy Session</button>
+    <!-- Pairing Panel -->
+    <div class="panel" id="pair-panel">
+      <h3>Enter Your Number</h3>
+      <div class="row">
+        <select class="in3 code" id="code"></select>
+        <input class="in4 num" id="number" placeholder="Phone Number">
+      </div>
+      <button class="btn1" id="pairBtn" disabled onclick="realPair()">Request Pairing Code</button>
+      <div id="pairBox" style="margin-top:10px;">
+        <div class="panel" id="pairCode"></div>
+        <button class="btn2" onclick="copyCode()">Copy Pairing Code</button>
+      </div>
+      <div id="sessionBox" style="margin-top:10px;">
+        <div class="panel" id="sessionText">Waiting for session...</div>
+        <button class="btn2" onclick="copySession()">Copy Session</button>
+      </div>
+      <button class="btnBack" onclick="closePairPanel()">Close</button>
     </div>
+
+    <!-- QR Panel -->
+    <div class="panel" id="qr-panel">
+      <h3>Scan QR Code</h3>
+      <div id="qr-container">
+        <img id="qr-image" src="" alt="QR Code">
+      </div>
+      <button class="btnBack" onclick="closeQRPanel()">Close</button>
+    </div>
+
   </div>
 </div>
 
 <script>
-// Screen navigation
-const screens=document.querySelectorAll('.screen');
-function show(id){screens.forEach(s=>s.classList.remove('active'));document.getElementById(id).classList.add('active');}
-setTimeout(()=>show('name'),2000);
+const fname=prompt("Enter your name")||"User";
+document.getElementById('hello').innerHTML=`Hello <span style="color:#00c6ff">${fname}</span>`;
 
-// Name input
-const fname=document.getElementById('fname');
-const nameBtn=document.getElementById('nameBtn');
-fname.oninput=()=>nameBtn.disabled=fname.value.length<2;
-nameBtn.onclick=()=>{
-  document.getElementById('hello').innerHTML=
-    `Dear <span style="color:#00c6ff">${fname.value}</span><br>Welcome To Wasif MD Session Generator`;
-  show('home');
-};
-
-// Phone + Pairing
+// Link panel functions
 const code=document.getElementById('code');
 const number=document.getElementById('number');
 const pairBtn=document.getElementById('pairBtn');
-const pairBox=document.getElementById('pairBox');
 const pairCode=document.getElementById('pairCode');
-const sessionBox=document.getElementById('sessionBox');
 const sessionText=document.getElementById('sessionText');
+const pairPanel=document.getElementById('pair-panel');
+const qrPanel=document.getElementById('qr-panel');
+const linkButtons=document.getElementById('link-buttons');
 
-function openPhone(type){
-  code.innerHTML= type==='pk'
-    ?'<option>+92</option>'
-    :'<option>+92</option><option>+1</option><option>+44</option>';
-  show('phone');
+function showPairPanel(){
+  pairPanel.style.display='block';
+  qrPanel.style.display='none';
+  code.innerHTML='<option>+92</option><option>+1</option><option>+44</option>';
 }
+function closePairPanel(){pairPanel.style.display='none';}
 number.oninput=()=>pairBtn.disabled=number.value.length<7;
 
-// 🔑 Request pairing from WASI-MD backend
 async function realPair(){
-  const full = code.value.replace('+','') + number.value;
-  try {
-    const r = await fetch('/api/pair',{
+  const full=code.value.replace('+','')+number.value;
+  try{
+    const r=await fetch('/api/pair',{
       method:'POST',
       headers:{'Content-Type':'application/json'},
       body: JSON.stringify({ phone: full })
     });
-    const d = await r.json();
+    const d=await r.json();
     if(d.code){
       pairCode.innerText=d.code;
-      pairBox.style.display='block';
+      pairCode.style.display='block';
       pollSession();
-    }else alert(d.error || 'Pairing Failed');
+    } else alert(d.error||'Pairing Failed');
   } catch(e){alert('Network error');}
 }
-
-// Copy
 function copyCode(){navigator.clipboard.writeText(pairCode.innerText);}
 function copySession(){navigator.clipboard.writeText(sessionText.innerText);}
-
-// Poll for session / status
 async function pollSession(){
   const i=setInterval(async()=>{
-    try{
-      const r=await fetch('/api/status');
-      const d=await r.json();
-      if(d.connected){
-        sessionText.innerText=d.session || 'Session Active';
-        sessionBox.style.display='block';
-        document.getElementById('conn-status').innerText='Connected';
-        document.getElementById('db-status').innerText=d.database?'Connected':'Disabled';
-        clearInterval(i);
-      }
-    }catch(e){}
+    const r=await fetch('/api/status');
+    const d=await r.json();
+    if(d.session){
+      sessionText.innerText=d.session;
+      sessionText.style.display='block';
+      if(d.linked) linkButtons.style.display='none';
+      clearInterval(i);
+    }
   },2000);
 }
 
-// QR code
-function startQR(){
+// QR
+function showQRPanel(){
+  qrPanel.style.display='block';
+  pairPanel.style.display='none';
   fetch('/api/qr',{method:'POST'}).then(async()=>{
-    // get latest QR
-    const res=await fetch('/api/status');
-    const data=await res.json();
-    if(data.qr){
-      document.getElementById('qr-image').src=data.qr;
-      document.getElementById('qr-container').style.display='block';
-    }
-    show('home');
-  }).catch(()=>alert('Failed to request QR'));
+    const r=await fetch('/api/status');
+    const d=await r.json();
+    if(d.qr) document.getElementById('qr-image').src=d.qr;
+  }).catch(()=>alert('Failed to fetch QR'));
 }
 
 // Disconnect
@@ -213,13 +163,14 @@ async function disconnect(){
   }catch(e){alert('Failed to disconnect');}
 }
 
-// Status check every 2s
+// Status polling
 async function checkStatus(){
   try{
-    const res=await fetch('/api/status');
-    const data=await res.json();
-    document.getElementById('conn-status').innerText=data.connected?'Connected':'Waiting...';
-    document.getElementById('db-status').innerText=data.database?'Connected':'Disabled';
+    const r=await fetch('/api/status');
+    const d=await r.json();
+    document.getElementById('conn-status').innerText=d.connected?'Connected':'Waiting...';
+    document.getElementById('db-status').innerText=d.database?'Connected':'Disabled';
+    if(d.linked) linkButtons.style.display='none';
   }catch(e){}
 }
 setInterval(checkStatus,2000);
